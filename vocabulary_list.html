@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國小英文單字分類表</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自訂字體 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* 淺灰色背景 */
+            color: #334155; /* Slate 700 - 主要文字顏色 */
+        }
+        /* 自訂一些 Tailwind 顏色方便使用 */
+        :root {
+            --primary-color: #4f46e5; /* Indigo 600 */
+            --primary-dark-color: #4338ca; /* Indigo 700 */
+            --accent-color: #a78bfa; /* Violet 400 */
+            --text-color: #334155; /* Slate 700 */
+            --bg-color: #f8fafc; /* Slate 50 */
+            --category-bg: #e0e7ff; /* Indigo 100 - 用於分類標題背景 */
+            --category-text: #3730a3; /* Indigo 900 - 用於分類標題文字 */
+            --list-bg-even: #f8fafc; /* Subtle light background for even rows */
+            --list-bg-odd: #ffffff; /* White background for odd rows */
+        }
+        .bg-primary { background-color: var(--primary-color); }
+        .text-primary { color: var(--primary-color); }
+        .hover\:bg-primary-dark:hover { background-color: var(--primary-dark-color); }
+        .bg-accent { background-color: var(--accent-color); }
+        .text-text { color: var(--text-color); }
+        .bg-bg { background-color: var(--bg-color); }
+        .bg-category-header { background-color: var(--category-bg); color: var(--category-text); }
+
+        /* 主要內容區域的響應式調整 */
+        .container-wrapper {
+            max-width: 100%;
+            padding: 1rem; /* p-4 */
+        }
+        @media (min-width: 640px) { /* sm */
+            .container-wrapper {
+                max-width: 640px;
+                padding: 2rem; /* sm:p-8 */
+            }
+        }
+        @media (min-width: 768px) { /* md */
+            .container-wrapper {
+                max-width: 768px;
+            }
+        }
+        @media (min-width: 1024px) { /* lg */
+            .container-wrapper {
+                max-width: 1024px;
+            }
+        }
+
+        /* 單字列表的行樣式 */
+        .word-item:nth-child(even) {
+            background-color: var(--list-bg-even);
+        }
+        .word-item:nth-child(odd) {
+            background-color: var(--list-bg-odd);
+        }
+
+        /* 回到主頁按鈕的樣式 */
+        .back-button {
+            display: inline-block; /* 讓連結像按鈕一樣排列 */
+            background-color: #6b7280; /* Gray 500 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            text-decoration: none; /* 移除超連結底線 */
+        }
+        .back-button:hover {
+            background-color: #4b5563; /* Gray 700 */
+        }
+
+        /* 總計單字數量的樣式 */
+        .word-count {
+            color: #ef4444; /* Red 500 */
+            font-weight: bold;
+            font-size: 1.25rem; /* text-xl */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center min-h-screen">
+    <div class="container-wrapper bg-white rounded-2xl shadow-xl my-8">
+        <h1 class="text-4xl font-extrabold text-primary mb-8 text-center">
+            國小英文單字分類表
+        </h1>
+
+        <!-- 總單字數量顯示 -->
+        <p class="text-center word-count">
+            總單字數量: <span id="total-word-count">141</span>
+        </p>
+
+        <!-- 返回主頁按鈕 (使用 a 標籤) -->
+        <div class="text-center mb-8">
+            <a href="index.html" class="back-button">
+                返回測驗主頁
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 動物 (Animals) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+              <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">
+    <a href="animal.html" class="block w-full h-full text-inherit no-underline">Animals 動物</a>
+</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>bird</span> <span>鳥</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>cat</span> <span>貓</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>dog</span> <span>狗</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>elephant</span> <span>大象</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>fish</span> <span>魚</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>horse</span> <span>馬</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>koala</span> <span>無尾熊</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>lion</span> <span>獅子</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>monkey</span> <span>猴子</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>tiger</span> <span>老虎</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>turtle</span> <span>烏龜</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>zebra</span> <span>斑馬</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 星期 (Days of the Week) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Days of the Week 星期</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>Sunday</span> <span>星期日</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>Monday</span> <span>星期一</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>Tuesday</span> <span>星期二</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>Wednesday</span> <span>星期三</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>Thursday</span> <span>星期四</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>Friday</span> <span>星期五</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>Saturday</span> <span>星期六</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 身體部位 (Body Parts) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Body Parts 身體部位</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>arms</span> <span>手臂 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>ears</span> <span>耳朵 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>eyes</span> <span>眼睛 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>foot</span> <span>腳</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>feet</span> <span>腳 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>hands</span> <span>手 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>legs</span> <span>腿 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>mouth</span> <span>嘴</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>nose</span> <span>鼻子</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 家人 (Family) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Family 家人</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>brother</span> <span>哥哥 ; 弟弟</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>father (dad)</span> <span>爸爸</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>grandfather (grandpa)</span> <span>爺爺 ; 外公</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>grandmother (grandma)</span> <span>奶奶 ; 外婆</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>mother (mom)</span> <span>媽媽</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>sister</span> <span>姐姐 ; 妹妹</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 食物與飲料 (Food & Drinks) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Food & Drinks 食物與飲料</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>apples</span> <span>蘋果 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>bananas</span> <span>香蕉 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>bread</span> <span>麵包</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>cake</span> <span>蛋糕</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>chicken</span> <span>雞 ; 雞肉</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>hamburgers</span> <span>漢堡 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>hot dogs</span> <span>熱狗 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>ice cream</span> <span>冰淇淋</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>juice</span> <span>果汁</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>milk</span> <span>牛奶</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>noodles</span> <span>麵 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>oranges</span> <span>柳橙 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>pizza</span> <span>披薩</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>rice</span> <span>米飯</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>salad</span> <span>沙拉</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>sandwiches</span> <span>三明治 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>soup</span> <span>湯</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>tea</span> <span>茶</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>water</span> <span>水</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>watermelons</span> <span>西瓜 (複數)</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 房屋與公寓 (Houses & Apartments) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Houses & Apartments 房屋與公寓</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>bathroom</span> <span>浴室</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>bedroom</span> <span>臥室</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>dining room</span> <span>飯廳</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>kitchen</span> <span>廚房</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>living room</span> <span>客廳</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>yard</span> <span>院子</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 物品 (Items) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Items 物品</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>backpack</span> <span>背包</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>bag</span> <span>包包 ; 袋子</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>box</span> <span>箱子</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>cap</span> <span>棒球帽</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>chair</span> <span>椅子</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>computer</span> <span>電腦</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>desk</span> <span>書桌</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>glasses</span> <span>眼鏡</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>lunchbox</span> <span>午餐盒</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>shoes</span> <span>鞋 (複數)</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>table</span> <span>桌子</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>umbrella</span> <span>雨傘</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>water bottle</span> <span>水壺</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>workbook</span> <span>作業本</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 數字 (Numbers) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Numbers 數字</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>one</span> <span>一</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>two</span> <span>二</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>three</span> <span>三</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>four</span> <span>四</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>five</span> <span>五</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>six</span> <span>六</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>seven</span> <span>七</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>eight</span> <span>八</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>nine</span> <span>九</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>ten</span> <span>十</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 顏色 (Colors) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Colors 顏色</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>red</span> <span>紅色</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>blue</span> <span>藍色</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>green</span> <span>綠色</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>yellow</span> <span>黃色</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>black</span> <span>黑色</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>white</span> <span>白色</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>purple</span> <span>紫色</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>pink</span> <span>粉紅色</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Illness (疾病) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Illness 疾病</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>cold</span> <span>感冒</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>fever</span> <span>發燒</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>runny nose</span> <span>流鼻涕</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>sore throat</span> <span>喉嚨痛</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>headache</span> <span>頭痛</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>stomachache</span> <span>胃痛</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>toothache</span> <span>牙痛</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Places (地點) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Places 地點</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>bank</span> <span>銀行</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>bookstore</span> <span>書店</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>hospital</span> <span>醫院</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>library</span> <span>圖書館</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>museum</span> <span>博物館</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>park</span> <span>公園</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>post office</span> <span>郵局</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>supermarket</span> <span>超級市場</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Abilities (能力) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Abilities 能力</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>dance</span> <span>跳舞</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>draw</span> <span>畫畫</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>jump</span> <span>跳</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>read</span> <span>閱讀</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>sing</span> <span>唱歌</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>swim</span> <span>游泳</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>write</span> <span>寫字</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Feelings (感覺) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Feelings 感覺</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>angry</span> <span>生氣的</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>full</span> <span>飽的</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>happy</span> <span>快樂的</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>hungry</span> <span>肚子餓的</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>sad</span> <span>傷心的</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>thirsty</span> <span>口渴的</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>tired</span> <span>很累的</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Jobs (職業) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Jobs 職業</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>cook</span> <span>廚師</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>doctor</span> <span>醫生</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>driver</span> <span>司機</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>nurse</span> <span>護理師</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>student</span> <span>學生</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>teacher</span> <span>老師</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Stationery (文具) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Stationery 文具</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>book</span> <span>書</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>eraser</span> <span>橡皮擦</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>marker</span> <span>彩色筆</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>pen</span> <span>原子筆</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>pencil</span> <span>鉛筆</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>ruler</span> <span>尺</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Actions (動作) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Actions 動作</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>drinking</span> <span>(正在) 喝</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>eating</span> <span>(正在) 吃</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>reading</span> <span>(正在) 閱讀</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>running</span> <span>(正在) 跑步</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>sleeping</span> <span>(正在) 睡覺</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>swimming</span> <span>(正在) 游泳</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>writing</span> <span>(正在) 寫字</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Height (高矮) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Height 高矮</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>tall</span> <span>高的</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>short</span> <span>矮的</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Size (尺寸) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Size 尺寸</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>big</span> <span>大的</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>small</span> <span>小的</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Meals (三餐) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Meals 三餐</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>breakfast</span> <span>早餐</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>lunch</span> <span>午餐</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>dinner</span> <span>晚餐</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Subjects (科目) 分類 -->
+            <div class="category-block bg-white rounded-xl shadow-md overflow-hidden">
+                <h2 class="bg-category-header text-xl font-bold py-3 px-4 text-center">Subjects 科目</h2>
+                <div class="p-4">
+                    <ul class="divide-y divide-gray-200">
+                        <li class="word-item flex justify-between py-2 px-3"><span>art</span> <span>藝術</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>Chinese</span> <span>中文</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>English</span> <span>英語</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>math</span> <span>數學</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>music</span> <span>音樂</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>PE</span> <span>體育</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>science</span> <span>自然</span></li>
+                        <li class="word-item flex justify-between py-2 px-3"><span>social studies</span> <span>社會</span></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let totalWords = 0;
+            // 遍歷所有 .category-block 內的 <ul> 裡的 <li> 元素
+            document.querySelectorAll('.category-block ul li').forEach(() => {
+                totalWords++;
+            });
+            document.getElementById('total-word-count').textContent = totalWords;
+        });
+    </script>
+</body>
+</html>

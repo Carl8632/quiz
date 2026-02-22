@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal 動物</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for speaker icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlalHbfZ/oP/fD27xKj3v/t+u2b+bF8zC/b2gW6Z/z+vBfRz+a2KxL8w+yL/Q+oN+oZ/bX6G/z+vBfRz+a2KxL8w+yL/Q+oN+oZ/bX6G+oV3w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Custom font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light gray background */
+            /* 移除 position: relative 和 min-height: 100vh，因為按鈕現在在 #app 內部定位 */
+        }
+        /* Custom Tailwind colors for easier use */
+        :root {
+            --primary-color: #4f46e5; /* Indigo 600 */
+            --primary-dark-color: #4338ca; /* Indigo 700 */
+            --accent-color: #a78bfa; /* Violet 400 */
+            --text-color: #334155; /* Slate 700 */
+            --bg-color: #f8fafc; /* Slate 50 */
+        }
+        .bg-primary { background-color: var(--primary-color); }
+        .text-primary { color: var(--primary-color); }
+        .hover\:bg-primary-dark:hover { background-color: var(--primary-dark-color); }
+        .bg-accent { background-color: var(--accent-color); }
+        .text-text { color: var(--text-color); }
+        .bg-bg { background-color: var(--bg-color); }
+
+        /* Adjustments for the main app container */
+        #app {
+            min-height: 500px;
+            max-height: 95vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center horizontally */
+            /* 移除了 justify-content: center; 以便內容從頂部開始排列 */
+        }
+
+        /* Speaker icon style */
+        .speaker-icon {
+            cursor: pointer;
+            color: #4f46e5; /* Theme color */
+            margin-left: 8px;
+            transition: color 0.2s;
+        }
+        .speaker-icon:hover {
+            color: #4338ca; /* Darker theme color */
+        }
+
+        /* Image vocabulary card style */
+        .image-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f8fafc; /* Slate 50 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            transition: transform 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .image-card:hover {
+            transform: translateY(-5px);
+        }
+        .image-card img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.5rem; /* rounded-lg */
+            margin-bottom: 0.75rem;
+            border: 2px solid #e0e7ff; /* Indigo 100 */
+        }
+        .image-card p {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: var(--text-color);
+        }
+
+        /* 替換原本的 .back-button-container 和 .back-button 樣式 */
+        .back-button-inline {
+            background-color: #60a5fa; /* Blue 400 */
+            color: white;
+            padding: 0.5rem 1rem; /* py-2 px-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600; /* font-semibold */
+            text-decoration: none; /* Remove underline from link */
+            display: inline-flex; /* Allow icon and text to align */
+            align-items: center;
+            gap: 0.5rem; /* space-x-2 */
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+        .back-button-inline:hover {
+            background-color: #3b82f6; /* Blue 500 */
+            transform: scale(1.05);
+        }
+        /* Responsive adjustments for small screens */
+        @media (max-width: 640px) {
+            .back-button-inline {
+                padding: 0.375rem 0.75rem; /* py-1.5 px-3 */
+                font-size: 0.875rem; /* text-sm */
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div id="app" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl flex flex-col items-center">
+        <!-- Title -->
+        <h1 class="text-4xl font-extrabold text-primary mb-6 text-center">
+            Animals 動物
+        </h1>
+
+        <!-- Image Vocabulary Wall Screen -->
+        <div id="image-vocabulary-wall-screen" class="w-full">
+            <!-- 新增的 Flexbox 容器，用於對齊按鈕和文字 -->
+            <!-- 移除了 justify-between，讓按鈕和文字靠左對齊並靠近 -->
+            <div class="flex items-center mb-6"> 
+                <!-- 回單字表按鈕現在在文字的左邊 -->
+                <a href="vocabulary_list.html" class="back-button-inline mr-4"> <!-- 新增 mr-4 以提供按鈕與文字間的間距 -->
+                    <i class="fas fa-arrow-left"></i> 回單字表
+                </a>
+                <p class="text-lg text-text">點擊圖片可播放發音</p>
+            </div>
+            <div id="animal-image-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
+                <!-- Images will be dynamically loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 設定圖片檔案所在的基礎路徑。
+        // 如果您的 HTML 檔案 (animal.html) 和 'images' 資料夾位於同一層，這樣設定是正確的。
+        // 確保 'images' 資料夾中包含所有動物圖片檔案 (bird.png, cat.png 等)。
+        const baseImageURL = "./images"; 
+
+        // 動物單字資料與圖片路徑
+        const vocabulary = [
+            // 請確保您的圖片檔案 (例如 bird.png) 位於上述 baseImageURL 指定的路徑中。
+            // 如果圖片檔案就在 animal.html 同一個資料夾，您可以直接寫 "bird.png"。
+            { english: "bird", chinese: "鳥", image: `${baseImageURL}/bird.png` },
+            { english: "cat", chinese: "貓", image: `${baseImageURL}/cat.png` },
+            { english: "dog", chinese: "狗", image: `${baseImageURL}/dog.png` },
+            { english: "elephant", chinese: "大象", image: `${baseImageURL}/elephant.png` },
+            { english: "fish", chinese: "魚", image: `${baseImageURL}/fish.png` },
+            { english: "horse", chinese: "馬", image: `${baseImageURL}/horse.png` },
+            { english: "koala", chinese: "無尾熊", image: `${baseImageURL}/koala.png` },
+            { english: "lion", chinese: "獅子", image: `${baseImageURL}/lion.png` },
+            { english: "monkey", chinese: "猴子", image: `${baseImageURL}/monkey.png` },
+            { english: "tiger", chinese: "老虎", image: `${baseImageURL}/tiger.png` },
+            { english: "turtle", chinese: "烏龜", image: `${baseImageURL}/turtle.png` },
+            { english: "zebra", chinese: "斑馬", image: `${baseImageURL}/zebra.png` }
+        ];
+
+        // DOM elements
+        const animalImageGrid = document.getElementById('animal-image-grid');
+
+        // Speech synthesis API
+        const synth = window.speechSynthesis;
+        let currentUtterance = null; // To store the current utterance object for cancellation
+
+        // Function to speak text
+        function speakText(text, lang = 'en-US') {
+            if (synth.speaking) {
+                synth.cancel(); // If speaking, cancel current speech
+            }
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.lang = lang; // Default English pronunciation
+            currentUtterance.rate = 0.9; // Slightly slower speech rate
+
+            if (lang === 'zh-TW' || lang === 'zh-CN') {
+                currentUtterance.rate = 0.7; // Chinese pronunciation can be a bit slower
+            }
+
+            // Find available voices
+            const voices = synth.getVoices();
+            let selectedVoice = null;
+
+            // Prioritize selecting a voice matching the language
+            for (let i = 0; i < voices.length; i++) {
+                if (voices[i].lang === lang) {
+                    selectedVoice = voices[i];
+                    break;
+                }
+            }
+
+            // If no voice is found for the specified language, try a similar one or system default
+            if (!selectedVoice) {
+                console.warn(`No voice found for language ${lang}, trying default.`);
+                // Try to find a default English or Chinese voice
+                for (let i = 0; i < voices.length; i++) {
+                    if (voices[i].lang.startsWith('en') && lang.startsWith('en')) {
+                        selectedVoice = voices[i];
+                        break;
+                    }
+                    if (voices[i].lang.startsWith('zh') && lang.startsWith('zh')) {
+                        selectedVoice = voices[i];
+                        break;
+                    }
+                }
+            }
+            // Finally, if still no voice, use the first available voice
+            if (!selectedVoice && voices.length > 0) {
+                 selectedVoice = voices[0];
+            }
+
+            if (selectedVoice) {
+                currentUtterance.voice = selectedVoice;
+            } else {
+                console.warn("No suitable speech synthesis voice found.");
+            }
+
+            synth.speak(currentUtterance);
+        }
+
+        // When voices are loaded, update the voice list (voices might take time to load)
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = () => {
+                console.log("SpeechSynthesis voices changed/loaded.");
+            };
+        }
+
+        // Function to render the animal image wall
+        function renderAnimalImageWall() {
+            animalImageGrid.innerHTML = ''; // Clear existing content
+
+            vocabulary.forEach(word => {
+                const card = document.createElement('div');
+                card.classList.add('image-card');
+                card.innerHTML = `
+                    <img src="${word.image}" alt="${word.english}" onerror="this.src='https://placehold.co/100x100/cccccc/000000?text=圖片載入失敗'">
+                    <p>${word.english}</p>
+                    <p class="text-sm text-gray-500">${word.chinese}</p>
+                `;
+                // Add click event to the entire card for pronunciation
+                card.addEventListener('click', () => {
+                    speakText(word.english, 'en-US');
+                });
+                animalImageGrid.appendChild(card);
+            });
+        }
+
+        // Initial load: render the animal image wall
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAnimalImageWall();
+        });
+    </script>
+</body>
+</html>
