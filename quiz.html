@@ -90,12 +90,14 @@
                     </label>
                 </div>
             </div>
-            <div class="text-center mb-10">
+            <div class="text-center mb-6">
                 <h2 id="question-text" class="text-5xl font-bold text-slate-800 mb-6"></h2>
-                <button onclick="speakWord()" class="px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold border border-indigo-100">🔊 聽聲音</button>
-                <div class="text-slate-400 text-xs mt-6 font-bold">得分: <span id="score" class="text-indigo-600">0</span></div>
+                <div class="flex items-center justify-center space-x-6">
+                    <button onclick="speakWord()" class="px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold border border-indigo-100">🔊 聽聲音</button>
+                    <div class="text-slate-400 text-sm font-bold">得分: <span id="score" class="text-indigo-600">0</span></div>
+                </div>
             </div>
-            <div id="options-container" class="grid grid-cols-1 gap-4"></div>
+            <div id="options-container" class="grid grid-cols-1 gap-2"></div>
         </div>
 
         <div id="result-screen" class="hidden text-center">
@@ -217,8 +219,8 @@
             container.innerHTML = '';
             options.forEach(opt => {
                 const btn = document.createElement('button');
-                // 修改重點：加大字體 (text-3xl) 並處理換行 (break-words)
-                btn.className = "w-full py-5 px-4 text-center bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all text-black hover:bg-slate-100 text-3xl break-words leading-tight shadow-sm active:scale-95";
+                // 修改重點：py-5 改為 py-2.5 以縮短高度
+                btn.className = "w-full py-2.5 px-4 text-center bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all text-black hover:bg-slate-100 text-3xl break-words leading-tight shadow-sm active:scale-95";
                 btn.textContent = currentQuizType === 'eng-to-chi' ? opt.chinese : opt.english;
                 btn.onclick = () => handleAnswer(opt, btn, current);
                 container.appendChild(btn);
@@ -244,7 +246,11 @@
                     if (b.textContent === correctText) b.classList.add('option-correct');
                 });
             }
-            setTimeout(() => { currentQuestionIndex++; loadNextQuestion(); }, 700);
+            setTimeout(() => { 
+                document.getElementById('score').textContent = score;
+                currentQuestionIndex++; 
+                loadNextQuestion(); 
+            }, 700);
         }
 
         function confirmExit() { if (confirm("結束測驗並回到首頁？")) backToHome(); }
