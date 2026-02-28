@@ -1,814 +1,212 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>國中小英文單字測驗</title>
-    <!-- Tailwind CSS CDN -->
+    <title>英文單字王</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for speaker and sparkle icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlalHbfZ/oP/fD27xKj3v/t+u2b+bF8zC/b2gW6Z/z+vBfRz+a2KxL8w+yL/Q+oN+oZ/bX6G+oV3w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 自訂字體 */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* 淺灰色背景 */
-            /* 移除 body 上的 overflow-y: hidden; 避免整體頁面無法滾動 */
-        }
-        /* 自訂一些 Tailwind 顏色方便使用 */
-        :root {
-            --primary-color: #4f46e5; /* Indigo 600 */
-            --primary-dark-color: #4338ca; /* Indigo 700 */
-            --accent-color: #a78bfa; /* Violet 400 */
-            --text-color: #334155; /* Slate 700 */
-            --bg-color: #f8fafc; /* Slate 50 */
-        }
-        .bg-primary { background-color: var(--primary-color); }
-        .text-primary { color: var(--primary-color); }
-        .hover\:bg-primary-dark:hover { background-color: var(--primary-dark-color); }
-        .bg-accent { background-color: var(--accent-color); }
-        .text-text { color: var(--text-color); }
-        .bg-bg { background-color: var(--bg-color); }
-
-        /* 修正：為 app 容器設定最小高度，防止內容變動導致視窗抖動 */
-        #app {
-            min-height: 500px; /* 根據內容調整此值，確保足夠高 */
-            max-height: 95vh; /* 限制最大高度為視窗的95%，並允許內部滾動 */
-            overflow-y: auto; /* 允許垂直滾動，當內容超出時 */
-            display: flex; /* 讓內容在垂直方向也能居中或良好排列 */
-            flex-direction: column;
-            justify-content: center; /* 垂直居中內容 */
-        }
-
-        /* 調整選項容器的高度，使其在不同題目間保持一致，減少跳動 */
-        #options-container {
-            min-height: 160px; /* 根據按鈕數量和行高調整，確保足夠容納所有選項 */
-        }
-
-        /* 圖片樣式 */
-        .question-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 8px; /* 圓角 */
-            margin-right: 8px; /* 與文字的間距 */
-            vertical-align: middle; /* 與文字垂直對齊 */
-            display: inline-block; /* 確保與文字在同一行 */
-        }
-
-        /* 喇叭圖示樣式 */
-        .speaker-icon {
-            cursor: pointer;
-            color: #4f46e5; /* 主題色 */
-            margin-left: 8px;
-            transition: color 0.2s;
-        }
-        .speaker-icon:hover {
-            color: #4338ca; /* 深色主題色 */
-        }
-
-        /* 新增的例句生成按鈕樣式 */
-        .generate-example-btn {
-            background-color: #fca5a5; /* Red 300 - 粉色 */
-            color: #7f1d1d; /* Red 900 - 深紅文字 */
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.875rem; /* text-sm */
-            font-weight: 600; /* font-semibold */
-            margin-top: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px; /* gap-1 */
-        }
-        .generate-example-btn:hover {
-            background-color: #f87171; /* Red 400 */
-            transform: scale(1.02);
-        }
-        .generate-example-btn:disabled {
-            background-color: #d1d5db; /* Gray 300 */
-            color: #6b7280; /* Gray 500 */
-            cursor: not-allowed;
-        }
-        .llm-loading-spinner {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #3498db;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
+        .hidden { display: none; }
+        .option-correct { background-color: #22c55e !important; color: white !important; border-color: #16a34a !important; }
+        .option-wrong { background-color: #ef4444 !important; color: white !important; border-color: #dc2626 !important; }
+        .toggle-checkbox:checked { right: 0; border-color: #4f46e5; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #4f46e5; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div id="app" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg text-center flex flex-col items-center">
-        <!-- 標題 -->
-        <h1 class="text-4xl font-extrabold text-primary mb-6">
-            單字測驗
-        </h1>
+<body class="min-h-screen flex items-center justify-center p-4">
 
-        <!-- 模式選擇畫面 -->
-        <div id="quiz-selection" class="space-y-4">
-            <p class="text-lg text-text mb-6">請選擇測驗模式：</p>
-            <button id="start-eng-to-chi" class="w-full bg-primary text-white py-3 px-6 rounded-lg text-xl font-semibold shadow-md hover:bg-primary-dark transition-all duration-300 transform hover:scale-105">
-                選出中文意思 (英文 -> 中文)
-            </button>
-            <button id="start-chi-to-eng" class="w-full bg-accent text-white py-3 px-6 rounded-lg text-xl font-semibold shadow-md hover:opacity-90 transition-all duration-300 transform hover:scale-105">
-                選出英文單字 (中文 -> 英文)
-            </button>
-            <!-- 新增的連結到單字表按鈕 -->
-            <button onclick="window.location.href='vocabulary_list.html'" class="w-full bg-gray-300 text-text py-3 px-6 rounded-lg text-xl font-semibold mt-4 shadow-md hover:bg-gray-400 transition-colors duration-300 transform hover:scale-105">
-                查看單字表
-            </button>
+    <div id="app" class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border border-slate-100">
+        
+        <div id="level-selection" class="space-y-6">
+            <h1 class="text-3xl font-bold text-center text-indigo-600 mb-10">英文單字挑戰</h1>
+            <div class="grid grid-cols-1 gap-5">
+                <button id="btn-elementary" onclick="selectLevel('elementary')" class="py-5 bg-green-500 text-white rounded-2xl font-bold hover:bg-green-600 transition shadow-lg text-xl">國小單字</button>
+                <button id="btn-junior" onclick="selectLevel('junior')" class="py-5 bg-blue-500 text-white rounded-2xl font-bold hover:bg-blue-600 transition shadow-lg text-xl">國中單字</button>
+                <button id="btn-senior" onclick="selectLevel('senior')" class="py-5 bg-purple-500 text-white rounded-2xl font-bold hover:bg-purple-600 transition shadow-lg text-xl">高中單字</button>
+            </div>
         </div>
 
-        <!-- 測驗進行畫面 -->
-        <div id="quiz-screen" class="hidden w-full">
+        <div id="quiz-selection" class="hidden space-y-4">
+            <button onclick="backToHome()" class="text-sm text-indigo-600 hover:underline mb-4">← 返回重選</button>
+            <h2 id="selected-level-text" class="text-xl font-bold text-center text-slate-800 mb-6">已選擇</h2>
+            <button onclick="startQuiz('eng-to-chi')" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition shadow-md">英文 ➔ 中文 測驗</button>
+            <button onclick="startQuiz('chi-to-eng')" class="w-full py-4 bg-white text-indigo-600 border-2 border-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition shadow-md">中文 ➔ 英文 測驗</button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
             <div class="flex justify-between items-center mb-4">
-                <p class="text-lg text-text">問題: <span id="current-question-count">0</span> / <span id="total-questions-count">0</span></p>
-                <p class="text-lg text-text">分數: <span id="score">0</span></p>
-            </div>
-            <div class="bg-bg p-6 rounded-xl mb-6 shadow-inner">
-                <p id="question-text" class="text-3xl font-bold text-text mb-4">題目會顯示在這裡</p>
-            </div>
-
-            <div id="options-container" class="space-y-3">
-                <!-- 選項按鈕會在這裡動態生成 -->
-            </div>
-
-            <button id="next-question-btn" class="hidden w-full bg-gray-400 text-white py-3 px-6 rounded-lg text-xl font-semibold mt-6 shadow-md hover:bg-gray-500 transition-colors duration-300">
-                下一題
-            </button>
-        </div>
-
-        <!-- 測驗結果畫面 -->
-        <div id="results-screen" class="hidden w-full">
-            <h2 class="text-3xl font-bold text-primary mb-4">測驗結果</h2>
-            <p class="text-xl text-text mb-6">您的分數是: <span id="final-score" class="font-extrabold">0</span> / <span id="final-total-questions" class="font-extrabold">0</span></p>
-
-            <!-- 測驗回顧區塊 -->
-            <div id="review-section" class="w-full mt-8 p-4 bg-gray-50 rounded-lg shadow-inner text-left">
-                <h3 class="text-2xl font-bold text-gray-800 mb-4">測驗回顧</h3>
-                <div id="quiz-review-list" class="space-y-4">
-                    <!-- 題目回顧會在這裡動態生成 -->
+                <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">得分: <span id="score">0</span></span>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-slate-500">自動發音</span>
+                    <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggle" id="auto-voice" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer outline-none transition-all duration-300 right-4 border-slate-300"/>
+                        <label for="auto-voice" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-all duration-300"></label>
+                    </div>
                 </div>
             </div>
+            
+            <div id="question-container" class="text-center mb-8">
+                <h2 id="question-text" class="text-4xl font-bold text-slate-800 mb-4 tracking-tight"></h2>
+                <button onclick="speakWord()" class="px-4 py-2 bg-slate-100 rounded-full hover:bg-slate-200 transition text-sm text-slate-600 font-medium">🔊 點擊發音</button>
+                <div class="text-slate-400 text-xs mt-2">進度: <span id="current-question-count">0</span>/10</div>
+            </div>
+            <div id="options-container" class="grid grid-cols-1 gap-3"></div>
+        </div>
 
-            <button id="restart-quiz-btn" class="w-full bg-primary text-white py-3 px-6 rounded-lg text-xl font-semibold shadow-md hover:bg-primary-dark transition-all duration-300 transform hover:scale-105 mt-6">
-                重新測驗
-            </button>
-            <button id="back-to-selection-btn" class="w-full bg-gray-400 text-white py-3 px-6 rounded-lg text-xl font-semibold mt-4 shadow-md hover:bg-gray-500 transition-colors duration-300 transform hover:scale-105">
-                返回模式選擇
-            </button>
+        <div id="result-screen" class="hidden">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-bold text-slate-800">測驗結束！</h2>
+                <p class="text-slate-500 mt-2 text-xl">得分：<span id="final-score" class="font-bold text-indigo-600">0</span></p>
+            </div>
+            <div class="mb-6">
+                <h3 class="font-bold text-slate-700 mb-2 text-sm border-b pb-1">複習清單：</h3>
+                <div id="review-list" class="space-y-1 max-h-52 overflow-y-auto pr-1"></div>
+            </div>
+            <button onclick="backToHome()" class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg">回主畫面</button>
         </div>
     </div>
 
     <script>
-        // 範例單字資料，請替換成您的國中小1200單字
-        // 每個物件包含英文單字、中文意思和詞性 (可選)
-        const vocabulary = [
-            { english: "apple", chinese: "蘋果", partOfSpeech: "n." },
-            { english: "banana", chinese: "香蕉", partOfSpeech: "n." },
-            { english: "cat", chinese: "貓", partOfSpeech: "n." },
-            { english: "dog", chinese: "狗", partOfSpeech: "n." },
-            { english: "house", chinese: "房子", partOfSpeech: "n." },
-            { english: "car", chinese: "汽車", partOfSpeech: "n." },
-            { english: "book", chinese: "書", partOfSpeech: "n." },
-            { english: "read", chinese: "閱讀", partOfSpeech: "v." },
-            { english: "write", chinese: "寫作", partOfSpeech: "v." },
-            { english: "run", chinese: "跑", partOfSpeech: "v." },
-            { english: "jump", chinese: "跳躍", partOfSpeech: "v." },
-            { english: "sleep", chinese: "睡覺", partOfSpeech: "v." },
-            { english: "happy", chinese: "快樂的", partOfSpeech: "adj." },
-            { english: "sad", chinese: "悲傷的", partOfSpeech: "adj." },
-            { english: "big", chinese: "大的", partOfSpeech: "adj." },
-            { english: "small", chinese: "小的", partOfSpeech: "adj." },
-            { english: "quickly", chinese: "快速地", partOfSpeech: "adv." },
-            { english: "slowly", chinese: "緩慢地", partOfSpeech: "adv." },
-            { english: "always", chinese: "總是", partOfSpeech: "adv." },
-            { english: "never", chinese: "從不", partOfSpeech: "adv." },
-            { english: "water", chinese: "水", partOfSpeech: "n." },
-            { english: "fire", chinese: "火", partOfSpeech: "n." },
-            { english: "earth", chinese: "地球", partOfSpeech: "n." },
-            { english: "air", chinese: "空氣", partOfSpeech: "n." },
-            { english: "sun", chinese: "太陽", partOfSpeech: "n." },
-            { english: "moon", chinese: "月亮", partOfSpeech: "n." },
-            { english: "star", chinese: "星星", partOfSpeech: "n." },
-            { english: "tree", chinese: "樹", partOfSpeech: "n." },
-            { english: "flower", chinese: "花", partOfSpeech: "n." },
-            { english: "grass", chinese: "草", partOfSpeech: "n." },
-            { english: "sky", chinese: "天空", partOfSpeech: "n." },
-            { english: "cloud", chinese: "雲", partOfSpeech: "n." },
-            { english: "rain", chinese: "雨", partOfSpeech: "n." },
-            { english: "snow", chinese: "雪", partOfSpeech: "n." },
-            { english: "wind", chinese: "風", partOfSpeech: "n." },
-            { english: "cold", chinese: "冷的", partOfSpeech: "adj." },
-            { english: "hot", chinese: "熱的", partOfSpeech: "adj." },
-            { english: "warm", chinese: "溫暖的", partOfSpeech: "adj." },
-            { english: "cool", chinese: "涼爽的", partOfSpeech: "adj." },
-            { english: "day", chinese: "白天", partOfSpeech: "n." },
-            { english: "night", chinese: "夜晚", partOfSpeech: "n." },
-            { english: "morning", chinese: "早晨", partOfSpeech: "n." },
-            { english: "afternoon", chinese: "下午", partOfSpeech: "n." },
-            { english: "evening", chinese: "傍晚", partOfSpeech: "n." },
-            { english: "today", chinese: "今天", partOfSpeech: "adv." },
-            { english: "tomorrow", chinese: "明天", partOfSpeech: "adv." },
-            { english: "yesterday", chinese: "昨天", partOfSpeech: "adv." },
-            { english: "friend", chinese: "朋友", partOfSpeech: "n." },
-            { english: "family", chinese: "家庭", partOfSpeech: "n." },
-            { english: "teacher", chinese: "老師", partOfSpeech: "n." },
-            { english: "student", chinese: "學生", partOfSpeech: "n." },
-            { english: "doctor", chinese: "醫生", partOfSpeech: "n." },
-            { english: "nurse", chinese: "護士", partOfSpeech: "n." },
-            { english: "police", chinese: "警察", partOfSpeech: "n." },
-            { english: "firefighter", chinese: "消防員", partOfSpeech: "n." },
-            { english: "cook", chinese: "廚師", partOfSpeech: "n./v." },
-            { english: "sing", chinese: "唱歌", partOfSpeech: "v." },
-            { english: "dance", chinese: "跳舞", partOfSpeech: "v." },
-            { english: "play", chinese: "玩耍", partOfSpeech: "v." },
-            { english: "work", chinese: "工作", partOfSpeech: "n./v." },
-            { english: "study", chinese: "學習", partOfSpeech: "v." },
-            { english: "listen", chinese: "聽", partOfSpeech: "v." },
-            { english: "speak", chinese: "說", partOfSpeech: "v." },
-            { english: "eat", chinese: "吃", partOfSpeech: "v." },
-            { english: "drink", chinese: "喝", partOfSpeech: "v." },
-            { english: "see", chinese: "看見", partOfSpeech: "v." },
-            { english: "hear", chinese: "聽見", partOfSpeech: "v." },
-            { english: "smell", chinese: "聞", partOfSpeech: "v." },
-            { english: "taste", chinese: "品嚐", partOfSpeech: "v." },
-            { english: "touch", chinese: "觸摸", partOfSpeech: "v." },
-            { english: "come", chinese: "來", partOfSpeech: "v." },
-            { english: "go", chinese: "去", partOfSpeech: "v." },
-            { english: "take", chinese: "拿", partOfSpeech: "v." },
-            { english: "give", chinese: "給", partOfSpeech: "v." },
-            { english: "make", chinese: "製作", partOfSpeech: "v." },
-            { english: "do", chinese: "做", partOfSpeech: "v." },
-            { english: "say", chinese: "說", partOfSpeech: "v." },
-            { english: "tell", chinese: "告訴", partOfSpeech: "v." },
-            { english: "ask", chinese: "問", partOfSpeech: "v." },
-            { english: "answer", chinese: "回答", partOfSpeech: "v." },
-            { english: "find", chinese: "找到", partOfSpeech: "v." },
-            { english: "lose", chinese: "失去", partOfSpeech: "v." },
-            { english: "open", chinese: "打開", partOfSpeech: "v." },
-            { english: "close", chinese: "關閉", partOfSpeech: "v." },
-            { english: "start", chinese: "開始", partOfSpeech: "v." },
-            { english: "finish", chinese: "結束", partOfSpeech: "v." },
-            { english: "stop", chinese: "停止", partOfSpeech: "v." },
-            { english: "help", chinese: "幫助", partOfSpeech: "v." },
-            { english: "thank", chinese: "感謝", partOfSpeech: "v." },
-            { english: "love", chinese: "愛", partOfSpeech: "n./v." },
-            { english: "like", chinese: "喜歡", partOfSpeech: "v." },
-            { english: "hate", chinese: "討厭", partOfSpeech: "v." },
-            { english: "want", chinese: "想要", partOfSpeech: "v." },
-            { english: "need", chinese: "需要", partOfSpeech: "v." },
-            { english: "have", chinese: "有", partOfSpeech: "v." },
-            { english: "get", chinese: "得到", partOfSpeech: "v." },
-            { english: "put", chinese: "放置", partOfSpeech: "v." },
-            { english: "sit", chinese: "坐", partOfSpeech: "v." },
-            { english: "stand", chinese: "站", partOfSpeech: "v." },
-            { english: "walk", chinese: "走路", partOfSpeech: "v." },
-            { english: "drive", chinese: "駕駛", partOfSpeech: "v." },
-            { english: "fly", chinese: "飛", partOfSpeech: "v." },
-            { english: "swim", chinese: "游泳", partOfSpeech: "v." },
-            { english: "teach", chinese: "教導", partOfSpeech: "v." },
-            { english: "learn", chinese: "學習", partOfSpeech: "v." },
-            { english: "know", chinese: "知道", partOfSpeech: "v." },
-            { english: "think", chinese: "思考", partOfSpeech: "v." },
-            { english: "feel", chinese: "感覺", partOfSpeech: "v." },
-            { english: "believe", chinese: "相信", partOfSpeech: "v." },
-            { english: "hope", chinese: "希望", partOfSpeech: "v." },
-            { english: "wait", chinese: "等待", partOfSpeech: "v." },
-            { english: "buy", chinese: "購買", partOfSpeech: "v." },
-            { english: "sell", chinese: "販賣", partOfSpeech: "v." },
-            { english: "win", chinese: "贏", partOfSpeech: "v." },
-            { english: "lose", chinese: "輸", partOfSpeech: "v." },
-            { english: "begin", chinese: "開始", partOfSpeech: "v." },
-            { english: "end", chinese: "結束", partOfSpeech: "v." },
-            { english: "follow", chinese: "跟隨", partOfSpeech: "v." },
-            { english: "show", chinese: "展示", partOfSpeech: "v." },
-            { english: "move", chinese: "移動", partOfSpeech: "v." },
-            { english: "change", chinese: "改變", partOfSpeech: "v." },
-            { english: "build", chinese: "建造", partOfSpeech: "v." },
-            { english: "break", chinese: "打破", partOfSpeech: "v." },
-            { english: "cut", chinese: "切割", partOfSpeech: "v." },
-            { english: "draw", chinese: "繪畫", partOfSpeech: "v." },
-            { english: "drive", chinese: "駕駛", partOfSpeech: "v." },
-            { english: "fall", chinese: "跌倒", partOfSpeech: "v." },
-            { english: "fight", chinese: "戰鬥", partOfSpeech: "v." },
-            { english: "fill", chinese: "填滿", partOfSpeech: "v." },
-            { english: "grow", chinese: "生長", partOfSpeech: "v." },
-            { english: "hold", chinese: "握住", partOfSpeech: "v." },
-            { english: "keep", chinese: "保持", partOfSpeech: "v." },
-            { english: "leave", chinese: "離開", partOfSpeech: "v." },
-            { english: "meet", chinese: "遇見", partOfSpeech: "v." },
-            { english: "pay", chinese: "支付", partOfSpeech: "v." },
-            { english: "receive", chinese: "接收", partOfSpeech: "v." },
-            { english: "send", chinese: "寄送", partOfSpeech: "v." },
-            { english: "share", chinese: "分享", partOfSpeech: "v." },
-            { english: "smile", chinese: "微笑", partOfSpeech: "n./v." },
-            { english: "laugh", chinese: "大笑", partOfSpeech: "n./v." },
-            { english: "cry", chinese: "哭泣", partOfSpeech: "n./v." },
-            { english: "shout", chinese: "大喊", partOfSpeech: "n./v." },
-            { english: "whisper", chinese: "低語", partOfSpeech: "n./v." },
-            { english: "call", chinese: "呼叫", partOfSpeech: "n./v." },
-            { english: "answer", chinese: "回答", partOfSpeech: "n./v." },
-            { english: "ask", chinese: "詢問", partOfSpeech: "n./v." },
-            { english: "tell", chinese: "告知", partOfSpeech: "v." },
-            { english: "speak", chinese: "說話", partOfSpeech: "v." },
-            { english: "talk", chinese: "交談", partOfSpeech: "v." },
-            { english: "read", chinese: "閱讀", partOfSpeech: "v." },
-            { english: "write", chinese: "寫", partOfSpeech: "v." },
-            { english: "listen", chinese: "聽", partOfSpeech: "v." },
-            { english: "see", chinese: "看", partOfSpeech: "v." },
-            { english: "watch", chinese: "觀看", partOfSpeech: "v." },
-            { english: "look", chinese: "看", partOfSpeech: "v." },
-            { english: "find", chinese: "找到", partOfSpeech: "v." },
-            { english: "search", chinese: "搜尋", partOfSpeech: "v." },
-            { english: "clean", chinese: "打掃", partOfSpeech: "v." },
-            { english: "wash", chinese: "清洗", partOfSpeech: "v." },
-            { english: "cook", chinese: "烹飪", partOfSpeech: "v." },
-            { english: "bake", chinese: "烘焙", partOfSpeech: "v." },
-            { english: "fry", chinese: "油炸", partOfSpeech: "v." },
-            { english: "boil", chinese: "煮沸", partOfSpeech: "v." },
-            { english: "steam", chinese: "蒸", partOfSpeech: "v." },
-            { english: "cut", chinese: "切", partOfSpeech: "v." },
-            { english: "chop", chinese: "剁", partOfSpeech: "v." },
-            { english: "mix", chinese: "混合", partOfSpeech: "v." },
-            { english: "stir", chinese: "攪拌", partOfSpeech: "v." },
-            { english: "pour", chinese: "倒", partOfSpeech: "v." },
-            { english: "add", chinese: "添加", partOfSpeech: "v." },
-            { english: "remove", chinese: "移除", partOfSpeech: "v." },
-            { english: "put", chinese: "放置", partOfSpeech: "v." },
-            { english: "take", chinese: "拿取", partOfSpeech: "v." },
-            { english: "bring", chinese: "帶來", partOfSpeech: "v." },
-            { english: "carry", chinese: "攜帶", partOfSpeech: "v." },
-            { english: "push", chinese: "推", partOfSpeech: "v." },
-            { english: "pull", chinese: "拉", partOfSpeech: "v." },
-            { english: "open", chinese: "打開", partOfSpeech: "v." },
-            { english: "close", chinese: "關閉", partOfSpeech: "v." },
-            { english: "start", chinese: "開始", partOfSpeech: "v." },
-            { english: "stop", chinese: "停止", partOfSpeech: "v." },
-            { english: "finish", chinese: "完成", partOfSpeech: "v." },
-            { english: "begin", chinese: "開始", partOfSpeech: "v." },
-            { english: "end", chinese: "結束", partOfSpeech: "v." },
-            { english: "continue", chinese: "繼續", partOfSpeech: "v." },
-            { english: "change", chinese: "改變", partOfSpeech: "v." },
-            { english: "improve", chinese: "改進", partOfSpeech: "v." },
-            { english: "grow", chinese: "成長", partOfSpeech: "v." },
-            { english: "reduce", chinese: "減少", partOfSpeech: "v." },
-            { english: "increase", chinese: "增加", partOfSpeech: "v." },
-            { english: "build", chinese: "建造", partOfSpeech: "v." },
-            { english: "destroy", chinese: "破壞", partOfSpeech: "v." },
-            { english: "repair", chinese: "修理", partOfSpeech: "v." },
-            { english: "fix", chinese: "固定", partOfSpeech: "v." },
-            { english: "create", chinese: "創造", partOfSpeech: "v." },
-            { english: "design", chinese: "設計", partOfSpeech: "v." },
-            { english: "invent", chinese: "發明", partOfSpeech: "v." },
-            { english: "discover", chinese: "發現", partOfSpeech: "v." },
-            { english: "explore", chinese: "探索", partOfSpeech: "v." },
-            { english: "travel", chinese: "旅行", partOfSpeech: "v." },
-            { english: "visit", chinese: "拜訪", partOfSpeech: "v." },
-            { english: "live", chinese: "居住", partOfSpeech: "v." },
-            { english: "die", chinese: "死亡", partOfSpeech: "v." },
-            { english: "born", chinese: "出生", partOfSpeech: "v." },
-            { english: "marry", chinese: "結婚", partOfSpeech: "v." },
-            { english: "divorce", chinese: "離婚", partOfSpeech: "v." },
-            { english: "work", chinese: "工作", partOfSpeech: "v." },
-            { english: "retire", chinese: "退休", partOfSpeech: "v." },
-            { english: "study", chinese: "學習", partOfSpeech: "v." },
-            { english: "teach", chinese: "教導", partOfSpeech: "v." },
-            { english: "learn", chinese: "學習", partOfSpeech: "v." },
-            { english: "understand", chinese: "理解", partOfSpeech: "v." },
-            { english: "remember", chinese: "記得", partOfSpeech: "v." },
-            { english: "forget", chinese: "忘記", partOfSpeech: "v." },
-            { english: "know", chinese: "知道", partOfSpeech: "v." },
-            { english: "believe", chinese: "相信", partOfSpeech: "v." },
-            { english: "hope", chinese: "希望", partOfSpeech: "v." },
-            { english: "dream", chinese: "夢想", partOfSpeech: "n./v." },
-            { english: "plan", chinese: "計畫", partOfSpeech: "n./v." },
-            { english: "decide", chinese: "決定", partOfSpeech: "v." },
-            { english: "choose", chinese: "選擇", partOfSpeech: "v." },
-            { english: "prepare", chinese: "準備", partOfSpeech: "v." },
-            { english: "organize", chinese: "組織", partOfSpeech: "v." },
-            { english: "manage", chinese: "管理", partOfSpeech: "v." },
-            { english: "lead", chinese: "領導", partOfSpeech: "v." },
-            { english: "follow", chinese: "跟隨", partOfSpeech: "v." },
-            { english: "help", chinese: "幫助", partOfSpeech: "v." },
-            { english: "support", chinese: "支持", partOfSpeech: "v." },
-            { english: "protect", chinese: "保護", partOfSpeech: "v." },
-            { english: "attack", chinese: "攻擊", partOfSpeech: "v." },
-            { english: "defend", chinese: "防禦", partOfSpeech: "v." },
-            { english: "win", chinese: "贏", partOfSpeech: "v." },
-            { english: "lose", chinese: "輸", partOfSpeech: "v." },
-            { english: "succeed", chinese: "成功", partOfSpeech: "v." },
-            { english: "fail", chinese: "失敗", partOfSpeech: "v." },
-            { english: "try", chinese: "嘗試", partOfSpeech: "v." },
-            { english: "practice", chinese: "練習", partOfSpeech: "v." },
-            { english: "improve", chinese: "改進", partOfSpeech: "v." },
-            { english: "develop", chinese: "發展", partOfSpeech: "v." },
-            { english: "create", chinese: "創造", partOfSpeech: "v." },
-            { english: "destroy", chinese: "摧毀", partOfSpeech: "v." },
-            { english: "build", chinese: "建造", partOfSpeech: "v." },
-            { english: "repair", chinese: "修理", partOfSpeech: "v." },
-            { english: "clean", chinese: "清潔", partOfSpeech: "v." },
-            { english: "dirty", chinese: "髒的", partOfSpeech: "adj." },
-            { english: "empty", chinese: "空的", partOfSpeech: "adj." },
-            { english: "full", chinese: "滿的", partOfSpeech: "adj." },
-            { english: "heavy", chinese: "重的", partOfSpeech: "adj." },
-            { english: "light", chinese: "輕的", partOfSpeech: "adj." },
-            { english: "long", chinese: "長的", partOfSpeech: "adj." },
-            { english: "short", chinese: "短的", partOfSpeech: "adj." },
-            { english: "tall", chinese: "高的", partOfSpeech: "adj." },
-            { english: "thin", chinese: "瘦的", partOfSpeech: "adj." },
-            { english: "thick", chinese: "厚的", partOfSpeech: "adj." },
-            { english: "wide", chinese: "寬的", partOfSpeech: "adj." },
-            { english: "narrow", chinese: "窄的", partOfSpeech: "adj." },
-            { english: "deep", chinese: "深的", partOfSpeech: "adj." },
-            { english: "shallow", chinese: "淺的", partOfSpeech: "adj." },
-            { english: "fast", chinese: "快的", partOfSpeech: "adj./adv." },
-            { english: "slow", chinese: "慢的", partOfSpeech: "adj./adv." },
-            { english: "early", chinese: "早的", partOfSpeech: "adj./adv." },
-            { english: "late", chinese: "晚的", partOfSpeech: "adj./adv." },
-            { english: "new", chinese: "新的", partOfSpeech: "adj." },
-            { english: "old", chinese: "舊的", partOfSpeech: "adj." },
-            { english: "young", chinese: "年輕的", partOfSpeech: "adj." },
-            { english: "beautiful", chinese: "美麗的", partOfSpeech: "adj." },
-            { english: "ugly", chinese: "醜陋的", partOfSpeech: "adj." },
-            { english: "good", chinese: "好的", partOfSpeech: "adj." },
-            { english: "bad", chinese: "壞的", partOfSpeech: "adj." },
-            { english: "great", chinese: "棒的", partOfSpeech: "adj." },
-            { english: "terrible", chinese: "糟糕的", partOfSpeech: "adj." },
-            { english: "easy", chinese: "容易的", partOfSpeech: "adj." },
-            { english: "difficult", chinese: "困難的", partOfSpeech: "adj." },
-            { english: "simple", chinese: "簡單的", partOfSpeech: "adj." },
-            { english: "complex", chinese: "複雜的", partOfSpeech: "adj." },
-            { english: "true", chinese: "真實的", partOfSpeech: "adj." },
-            { english: "false", chinese: "錯誤的", partOfSpeech: "adj." },
-            { english: "right", chinese: "正確的", partOfSpeech: "adj." },
-            { english: "wrong", chinese: "錯誤的", partOfSpeech: "adj." },
-            { english: "same", chinese: "相同的", partOfSpeech: "adj." },
-            { english: "different", chinese: "不同的", partOfSpeech: "adj." },
-            { english: "first", chinese: "第一的", partOfSpeech: "adj." },
-            { english: "last", chinese: "最後的", partOfSpeech: "adj." },
-            { english: "next", chinese: "下一個的", partOfSpeech: "adj." },
-            { english: "previous", chinese: "前一個的", partOfSpeech: "adj." },
-            { english: "many", chinese: "許多的", partOfSpeech: "adj." },
-            { english: "few", chinese: "少數的", partOfSpeech: "adj." },
-            { english: "much", chinese: "很多的", partOfSpeech: "adj." },
-            { english: "little", chinese: "很少的", partOfSpeech: "adj." },
-            { english: "all", chinese: "所有的", partOfSpeech: "adj." },
-            { english: "some", chinese: "一些", partOfSpeech: "adj." },
-            { english: "any", chinese: "任何的", partOfSpeech: "adj." },
-            { english: "no", chinese: "沒有", partOfSpeech: "adj." },
-            { english: "every", chinese: "每個", partOfSpeech: "adj." },
-            { english: "each", chinese: "每個", partOfSpeech: "adj." },
-            { english: "another", chinese: "另一個", partOfSpeech: "adj." },
-            { english: "other", chinese: "其他的", partOfSpeech: "adj." },
-            { english: "such", chinese: "這樣的", partOfSpeech: "adj." },
-            { english: "most", chinese: "最多的", partOfSpeech: "adj." },
-            { english: "more", chinese: "更多的", partOfSpeech: "adj." },
-            { english: "less", chinese: "較少的", partOfSpeech: "adj." },
-            { english: "best", chinese: "最好的", partOfSpeech: "adj." },
-            { english: "worst", chinese: "最差的", partOfSpeech: "adj." },
-            { english: "before", chinese: "在…之前", partOfSpeech: "prep./adv." },
-            { english: "after", chinese: "在…之後", partOfSpeech: "prep./adv." },
-            { english: "during", chinese: "在…期間", partOfSpeech: "prep." },
-            { english: "until", chinese: "直到", partOfSpeech: "prep./conj." },
-            { english: "since", chinese: "自從", partOfSpeech: "prep./conj./adv." },
-            { english: "while", chinese: "當…的時候", partOfSpeech: "conj." },
-            { english: "when", chinese: "當…的時候", partOfSpeech: "adv./conj." },
-            { english: "where", chinese: "在哪裡", partOfSpeech: "adv./conj." },
-            { english: "why", chinese: "為什麼", partOfSpeech: "adv./conj." },
-            { english: "how", chinese: "如何", partOfSpeech: "adv." },
-            { english: "who", chinese: "誰", partOfSpeech: "pron." },
-            { english: "what", chinese: "什麼", partOfSpeech: "pron./adj." },
-            { english: "which", chinese: "哪個", partOfSpeech: "pron./adj." },
-            { english: "whose", chinese: "誰的", partOfSpeech: "pron./adj." },
-            { english: "whom", chinese: "誰 (受格)", partOfSpeech: "pron." },
-            { english: "there", chinese: "那裡", partOfSpeech: "adv." },
-            { english: "here", chinese: "這裡", partOfSpeech: "adv." },
-            { english: "up", chinese: "向上", partOfSpeech: "adv./prep." },
-            { english: "down", chinese: "向下", partOfSpeech: "adv./prep." },
-            { english: "in", chinese: "在…裡面", partOfSpeech: "prep./adv." },
-            { english: "out", chinese: "在…外面", partOfSpeech: "adv./prep." },
-            { english: "on", chinese: "在…上面", partOfSpeech: "prep./adv." },
-            { english: "off", chinese: "離開", partOfSpeech: "adv./prep." },
-            { english: "over", chinese: "在…上方", partOfSpeech: "prep./adv." },
-            { english: "under", chinese: "在…下方", partOfSpeech: "prep./adv." },
-            { english: "above", chinese: "在…上方", partOfSpeech: "prep./adv." },
-            { english: "below", chinese: "在…下方", partOfSpeech: "prep./adv." },
-            { english: "between", chinese: "在…之間", partOfSpeech: "prep." },
-            { english: "among", chinese: "在…之中", partOfSpeech: "prep." },
-            { english: "through", chinese: "穿過", partOfSpeech: "prep./adv." },
-            { english: "around", chinese: "在…周圍", partOfSpeech: "prep./adv." },
-            { english: "across", chinese: "橫越", partOfSpeech: "prep./adv." },
-            { english: "behind", chinese: "在…後面", partOfSpeech: "prep./adv." },
-            { english: "in front of", chinese: "在…前面", partOfSpeech: "prep. phr." },
-            { english: "next to", chinese: "在…旁邊", partOfSpeech: "prep. phr." },
-            { english: "beside", chinese: "在…旁邊", partOfSpeech: "prep." },
-            { english: "with", chinese: "和", partOfSpeech: "prep." },
-            { english: "without", chinese: "沒有", partOfSpeech: "prep." },
-            { english: "for", chinese: "為了", partOfSpeech: "prep." },
-            { english: "from", chinese: "從", partOfSpeech: "prep." },
-            { english: "to", chinese: "到", partOfSpeech: "prep." },
-            { english: "at", chinese: "在", partOfSpeech: "prep." },
-            { english: "by", chinese: "藉由", partOfSpeech: "prep./adv." },
-            { english: "of", chinese: "的", partOfSpeech: "prep." },
-            { english: "about", chinese: "關於", partOfSpeech: "prep./adv." },
-            { english: "on", chinese: "在…上面", partOfSpeech: "prep./adv." },
-            { english: "off", chinese: "離開", partOfSpeech: "adv./prep." },
-            { english: "into", chinese: "進入", partOfSpeech: "prep." },
-            { english: "out of", chinese: "從…出來", partOfSpeech: "prep. phr." },
-            { english: "through", chinese: "穿過", partOfSpeech: "prep./adv." },
-            { english: "up", chinese: "向上", partOfSpeech: "adv./prep." },
-            { english: "down", chinese: "向下", partOfSpeech: "adv./prep." },
-            { english: "over", chinese: "在…上方", partOfSpeech: "prep./adv." },
-            { english: "under", chinese: "在…下方", partOfSpeech: "prep./adv." },
-            { english: "inside", chinese: "在裡面", partOfSpeech: "prep./adv." },
-            { english: "outside", chinese: "在外面", partOfSpeech: "prep./adv." },
-            { english: "before", chinese: "在…之前", partOfSpeech: "prep./adv." },
-            { english: "after", chinese: "在…之後", partOfSpeech: "prep./adv." },
-            { english: "during", chinese: "在…期間", partOfSpeech: "prep." },
-            { english: "until", chinese: "直到", partOfSpeech: "prep./conj." },
-            { english: "since", chinese: "自從", partOfSpeech: "prep./conj./adv." },
-            { english: "while", chinese: "當…的時候", partOfSpeech: "conj." }
-        ];
+        // --- 1. 初始化 (記得貼上你的正確 eyJ... Key) ---
+        const SUPABASE_URL = 'https://zeqemounpcjbhbksftoa.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplcWVtb3VucGNqYmhia3NmdG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3NTI2NjIsImV4cCI6MjA4NzMyODY2Mn0.WAWfdmTygPQK3zJAeVO79pHKP7umHnFcouyykvT_x74'; 
+        const myApp = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // DOM 元素引用
-        const quizSelectionScreen = document.getElementById('quiz-selection');
-        const quizScreen = document.getElementById('quiz-screen');
-        const resultsScreen = document.getElementById('results-screen');
-        const startEngToChiBtn = document.getElementById('start-eng-to-chi');
-        const startChiToEngBtn = document.getElementById('start-chi-to-eng');
-        const questionText = document.getElementById('question-text');
-        const optionsContainer = document.getElementById('options-container');
-        const scoreDisplay = document.getElementById('score');
-        const currentQuestionCountDisplay = document.getElementById('current-question-count');
-        const totalQuestionsCountDisplay = document.getElementById('total-questions-count');
-        const nextQuestionBtn = document.getElementById('next-question-btn');
-        const finalScoreDisplay = document.getElementById('final-score');
-        const finalTotalQuestionsDisplay = document.getElementById('final-total-questions');
-        const restartQuizBtn = document.getElementById('restart-quiz-btn');
-        const backToSelectionBtn = document.getElementById('back-to-selection-btn');
-        // 新增的回顧區塊元素
-        const quizReviewList = document.getElementById('quiz-review-list');
-
-
-        // 測驗狀態變數
-        let currentQuizType = ''; // 'eng-to-chi' 或 'chi-to-eng'
+        let allWords = [];
+        let shuffledVocabulary = [];
         let currentQuestionIndex = 0;
         let score = 0;
-        const totalQuestions = 10; // 每回合測驗的題目數量
-        let shuffledVocabulary = []; // 用於每回合測驗的隨機單字列表
-        let currentCorrectAnswer = ''; // 當前問題的正確答案
-        let currentQuestionContent = ''; // 當前問題的內容（英文或中文）
+        let quizResults = [];
+        const totalQuestions = 10;
+        let currentQuizType = 'eng-to-chi';
+        let isAnswering = false;
 
-        // 新增：儲存測驗歷史的陣列
-        let quizHistory = [];
-
-        // 顯示指定畫面
+        // --- 2. 導覽邏輯 ---
         function showScreen(screenId) {
-            quizSelectionScreen.classList.add('hidden');
-            quizScreen.classList.add('hidden');
-            resultsScreen.classList.add('hidden');
+            ['level-selection', 'quiz-selection', 'quiz-screen', 'result-screen'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
             document.getElementById(screenId).classList.remove('hidden');
         }
 
-        // 隨機打亂陣列
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+        // 修正：回到首頁並恢復你要求的原始文字
+        function backToHome() {
+            document.getElementById('btn-elementary').textContent = '國小單字';
+            document.getElementById('btn-junior').textContent = '國中單字';
+            document.getElementById('btn-senior').textContent = '高中單字';
+            showScreen('level-selection');
+        }
+
+        async function selectLevel(level) {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '載入中...';
+            
+            try {
+                const { data, error } = await myApp.from('words').select('*').eq('level', level);
+                if (error) throw error;
+                allWords = data;
+                
+                const levelNames = { 'elementary': '國小單字', 'junior': '國中單字', 'senior': '高中單字' };
+                document.getElementById('selected-level-text').textContent = `已選擇：${levelNames[level]}`;
+                showScreen('quiz-selection');
+            } catch (err) { 
+                alert('連線失敗：' + err.message);
+                btn.textContent = originalText;
             }
-            return array;
         }
 
-        // 取得三個不重複的選項 (包含正確答案)
-        function getOptions(correctWord, allWords, type) {
-            let options = [];
-            // 過濾掉正確單字，取得所有不正確的單字
-            const incorrectWords = allWords.filter(word => word.english !== correctWord.english);
-
-            // 如果不正確的單字數量不足，則輸出錯誤並重複選項，以避免應用程式崩潰
-            if (incorrectWords.length < 2) {
-                console.error("單字庫不足以生成不重複的誘答選項。請增加單字數量。");
-                // 為了避免錯誤，如果單字數量不足，會重複使用現有單字
-                options.push(correctWord);
-                if (incorrectWords.length > 0) options.push(incorrectWords[0]);
-                while (options.length < 3) {
-                    let randomWord = allWords[Math.floor(Math.random() * allWords.length)];
-                    let potentialOption = (type === "English") ? randomWord.english : randomWord.chinese;
-                    if (!options.some(opt => (type === "English" ? opt.english : opt.chinese) === potentialOption)) { // 檢查物件屬性
-                        options.push(randomWord);
-                    }
-                }
-            } else {
-                // 從不正確的單字中隨機選取兩個作為誘答選項
-                const shuffledIncorrect = shuffleArray([...incorrectWords]);
-                options.push(correctWord, shuffledIncorrect[0], shuffledIncorrect[1]);
-            }
-
-            // 將選項打亂後回傳
-            return shuffleArray(options);
-        }
-
-        // 生成英文 -> 中文 的題目
-        function generateEnglishToChineseQuestion() {
-            const currentWord = shuffledVocabulary[currentQuestionIndex];
-            currentQuestionContent = currentWord.english; // 題目是英文單字
-            questionText.textContent = currentWord.english;
-            currentCorrectAnswer = currentWord.chinese; // 正確答案是中文意思
-
-            const options = getOptions(currentWord, vocabulary, 'chinese');
-            renderOptions(options.map(o => o.chinese)); // 選項是中文意思
-        }
-
-        // 生成中文 -> 英文 的題目
-        function generateChineseToEnglishQuestion() {
-            const currentWord = shuffledVocabulary[currentQuestionIndex];
-            currentQuestionContent = currentWord.chinese; // 題目是中文意思
-            questionText.textContent = currentWord.chinese;
-            currentCorrectAnswer = currentWord.english; // 正確答案是英文單字
-
-            const options = getOptions(currentWord, vocabulary, 'english');
-            renderOptions(options.map(o => o.english)); // 選項是英文單字
-        }
-
-        // 渲染選項按鈕
-        function renderOptions(options) {
-            optionsContainer.innerHTML = ''; // 清空舊選項
-            nextQuestionBtn.classList.add('hidden'); // 隱藏下一題按鈕
-            // 重置下一題按鈕的顏色樣式
-            nextQuestionBtn.classList.remove('bg-green-500', 'hover:bg-green-600', 'bg-red-500', 'hover:bg-red-600');
-            nextQuestionBtn.classList.add('bg-gray-400', 'hover:bg-gray-500');
-
-            options.forEach(option => {
-                const button = document.createElement('button');
-                button.textContent = option;
-                button.classList.add('w-full', 'bg-blue-200', 'text-text', 'py-3', 'px-6', 'rounded-lg', 'text-xl', 'font-medium', 'shadow-sm', 'hover:bg-blue-300', 'transition-colors', 'duration-200', 'transform', 'hover:scale-105');
-                button.dataset.value = option; // 用於判斷答案
-                button.addEventListener('click', handleAnswerClick);
-                optionsContainer.appendChild(button);
-            });
-        }
-
-        // 處理答案點擊
-        function handleAnswerClick(event) {
-            const selectedAnswer = event.target.dataset.value;
-            const optionButtons = optionsContainer.querySelectorAll('button');
-            const isCorrect = (selectedAnswer === currentCorrectAnswer);
-
-            // 禁用所有選項按鈕，防止重複點擊
-            optionButtons.forEach(button => {
-                button.disabled = true;
-                button.classList.remove('hover:bg-blue-300', 'hover:scale-105'); // 移除hover效果
-
-                // 標記正確答案和使用者選擇
-                if (button.dataset.value === currentCorrectAnswer) {
-                    button.classList.add('bg-green-500', 'text-white');
-                } else if (button.dataset.value === selectedAnswer) {
-                    button.classList.add('bg-red-500', 'text-white');
-                } else {
-                    button.classList.add('bg-gray-300', 'text-gray-600'); // 未選中的變灰色
-                }
-            });
-
-            // 記錄本次答題的歷史
-            quizHistory.push({
-                question: currentQuestionContent,
-                userAnswer: selectedAnswer,
-                correctAnswer: currentCorrectAnswer,
-                isCorrect: isCorrect,
-                quizType: currentQuizType // 記錄測驗類型，用於回顧時顯示正確的問答方向
-            });
-
-            if (isCorrect) {
-                score++;
-                scoreDisplay.textContent = score;
-                nextQuestionBtn.classList.remove('bg-gray-400', 'hover:bg-gray-500');
-                nextQuestionBtn.classList.add('bg-green-500', 'hover:bg-green-600');
-            } else {
-                nextQuestionBtn.classList.remove('bg-gray-400', 'hover:bg-gray-500');
-                nextQuestionBtn.classList.add('bg-red-500', 'hover:bg-red-600');
-            }
-            nextQuestionBtn.classList.remove('hidden'); // 顯示下一題按鈕
-        }
-
-// 載入下一題或顯示結果
-function loadNextQuestion() {
-    // 這裡調整邏輯：先判斷是否還有題目可以出，然後才遞增 currentQuestionIndex 並顯示問題
-    if (currentQuestionIndex < totalQuestions) {
-        // 顯示當前問題編號 (從 1 開始)
-        currentQuestionCountDisplay.textContent = currentQuestionIndex + 1; // 修正顯示的問題序號
-
-        if (currentQuizType === 'eng-to-chi') {
-            generateEnglishToChineseQuestion();
-        } else {
-            generateChineseToEnglishQuestion();
-        }
-        currentQuestionIndex++; // 在問題顯示後遞增索引
-    } else {
-        showResults(); // 沒有更多問題，顯示結果
-    }
-}
-
-        // 顯示測驗結果並回顧
-        function showResults() {
-            showScreen('results-screen');
-            finalScoreDisplay.textContent = score;
-            finalTotalQuestionsDisplay.textContent = totalQuestions;
-            renderQuizReview(); // 呼叫函數來渲染回顧列表
-        }
-
-        // 渲染測驗回顧列表
-        function renderQuizReview() {
-            quizReviewList.innerHTML = ''; // 清空之前的回顧內容
-
-            quizHistory.forEach((item, index) => {
-                const reviewItem = document.createElement('div');
-                reviewItem.classList.add('p-3', 'rounded-md', 'shadow-sm', 'border', 'mb-3');
-
-                let questionDisplay = '';
-                let userAnswerDisplay = '';
-                let correctAnswerDisplay = '';
-
-                if (item.quizType === 'eng-to-chi') {
-                    // 英文問中文意思 (題目是英文，選項是中文)
-                    // 題目: [英文單字]
-                    // 您的答案: [您選的中文]
-                    // 正確答案: [正確的中文]
-                    questionDisplay = `問題 ${index + 1}: <span class="font-bold text-lg text-primary">${item.question}</span> 的中文意思是什麼?`;
-                    userAnswerDisplay = `您的答案: <span class="${item.isCorrect ? 'text-green-600' : 'text-red-600 font-bold'}">${item.userAnswer}</span>`;
-                    correctAnswerDisplay = `正確答案: <span class="text-green-600 font-bold">${item.correctAnswer}</span>`;
-                } else {
-                    // 中文問英文單字 (題目是中文，選項是英文)
-                    // 題目: [中文意思]
-                    // 您的答案: [您選的英文]
-                    // 正確答案: [正確的英文]
-                    questionDisplay = `問題 ${index + 1}: <span class="font-bold text-lg text-primary">${item.question}</span> 的英文單字是什麼?`;
-                    userAnswerDisplay = `您的答案: <span class="${item.isCorrect ? 'text-green-600' : 'text-red-600 font-bold'}">${item.userAnswer}</span>`;
-                    correctAnswerDisplay = `正確答案: <span class="text-green-600 font-bold">${item.correctAnswer}</span>`;
-                }
-
-
-                reviewItem.innerHTML = `
-                    <p class="text-base text-gray-700">${questionDisplay}</p>
-                    <p class="text-sm ${item.isCorrect ? 'text-gray-600' : 'text-red-600'}">${userAnswerDisplay}</p>
-                    <p class="text-sm text-green-600">${correctAnswerDisplay}</p>
-                `;
-
-                if (!item.isCorrect) {
-                    reviewItem.classList.add('border-red-300', 'bg-red-50'); // 答錯的題目加上紅色邊框和淺紅背景
-                } else {
-                    reviewItem.classList.add('border-green-300', 'bg-green-50'); // 答對的題目加上綠色邊框和淺綠背景
-                }
-
-                quizReviewList.appendChild(reviewItem);
-            });
-        }
-
-
-        // 初始化測驗
+        // --- 3. 測驗邏輯 ---
         function startQuiz(quizType) {
             currentQuizType = quizType;
             currentQuestionIndex = 0;
             score = 0;
-            quizHistory = []; // 開始新測驗時清空歷史記錄
-
-            scoreDisplay.textContent = score;
-            currentQuestionCountDisplay.textContent = 0;
-            totalQuestionsCountDisplay.textContent = totalQuestions;
-
-            // 打亂單字庫，只取測驗所需數量
-            shuffledVocabulary = shuffleArray([...vocabulary]).slice(0, totalQuestions);
-
+            quizResults = [];
+            document.getElementById('score').textContent = score;
+            shuffledVocabulary = [...allWords].sort(() => 0.5 - Math.random()).slice(0, totalQuestions);
             showScreen('quiz-screen');
-            loadNextQuestion(); // 開始第一道題
+            loadNextQuestion();
         }
 
-        // 事件監聽器
-        startEngToChiBtn.addEventListener('click', () => startQuiz('eng-to-chi'));
-        startChiToEngBtn.addEventListener('click', () => startQuiz('chi-to-eng'));
-        nextQuestionBtn.addEventListener('click', loadNextQuestion);
-        restartQuizBtn.addEventListener('click', () => {
-            // 重新開始測驗時，回到選擇模式，讓使用者重新選擇
-            showScreen('quiz-selection');
-        });
-        backToSelectionBtn.addEventListener('click', () => {
-            showScreen('quiz-selection');
-        });
+        function loadNextQuestion() {
+            if (currentQuestionIndex >= totalQuestions) {
+                showResult();
+                return;
+            }
+            isAnswering = false;
+            const currentWord = shuffledVocabulary[currentQuestionIndex];
+            document.getElementById('current-question-count').textContent = currentQuestionIndex + 1;
+            document.getElementById('question-text').textContent = currentQuizType === 'eng-to-chi' ? currentWord.english : currentWord.chinese;
+            
+            if (document.getElementById('auto-voice').checked) {
+                setTimeout(() => speakWord(), 100); 
+            }
 
-        // 初始載入時顯示模式選擇畫面
-        document.addEventListener('DOMContentLoaded', () => {
-            showScreen('quiz-selection');
-        });
+            let distractors = allWords.filter(w => w.english !== currentWord.english).sort(() => 0.5 - Math.random()).slice(0, 3);
+            let options = [...distractors, currentWord].sort(() => 0.5 - Math.random());
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full py-4 px-6 text-left bg-slate-50 border-2 border-slate-100 rounded-xl transition font-medium";
+                btn.textContent = currentQuizType === 'eng-to-chi' ? opt.chinese : opt.english;
+                btn.onclick = () => handleAnswer(opt, btn, currentWord);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedOpt, btn, correctWord) {
+            if (isAnswering) return;
+            isAnswering = true;
+            const isCorrect = selectedOpt.english === correctWord.english;
+            quizResults.push({ word: correctWord.english, chinese: correctWord.chinese, isCorrect: isCorrect });
+
+            if (isCorrect) {
+                btn.classList.add('option-correct');
+                score += 10;
+            } else {
+                btn.classList.add('option-wrong');
+                document.querySelectorAll('#options-container button').forEach(b => {
+                    if ((currentQuizType === 'eng-to-chi' && b.textContent === correctWord.chinese) || 
+                        (currentQuizType === 'chi-to-eng' && b.textContent === correctWord.english)) {
+                        b.classList.add('option-correct');
+                    }
+                });
+            }
+            document.getElementById('score').textContent = score;
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadNextQuestion();
+            }, 500); // 維持 0.5 秒快速反應
+        }
+
+        function showResult() {
+            document.getElementById('final-score').textContent = score;
+            const container = document.getElementById('review-list');
+            container.innerHTML = '';
+            quizResults.forEach(res => {
+                const div = document.createElement('div');
+                div.className = `flex justify-between p-2 rounded ${res.isCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'} text-xs`;
+                div.innerHTML = `<span>${res.word} - ${res.chinese}</span><span>${res.isCorrect ? '✓' : '✗'}</span>`;
+                container.appendChild(div);
+            });
+            showScreen('result-screen');
+        }
+
+        function speakWord() {
+            const word = shuffledVocabulary[currentQuestionIndex]?.english;
+            if (!word) return;
+            const msg = new SpeechSynthesisUtterance(word);
+            msg.lang = 'en-US';
+            msg.rate = 0.9;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(msg);
+        }
     </script>
 </body>
 </html>
