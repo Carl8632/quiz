@@ -25,12 +25,10 @@
                 <div class="text-3xl mb-2">🎮</div>
                 <h3 class="font-bold text-slate-800">開始測驗</h3>
             </div>
-
             <div class="bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50">
                 <div class="text-3xl mb-2">🖼️</div>
                 <h3 class="font-bold text-slate-400">圖解單字</h3>
             </div>
-
             <div class="bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50">
                 <div class="text-3xl mb-2">💬</div>
                 <h3 class="font-bold text-slate-400">情境對話</h3>
@@ -39,13 +37,11 @@
 
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
             <h2 class="text-xl font-bold mb-6 text-slate-700">📚 單字庫預覽</h2>
-
             <div class="grid grid-cols-3 gap-3 mb-8">
                 <button onclick="loadPreview('elementary')" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-green-600 hover:bg-green-50">國小必備</button>
                 <button onclick="loadPreview('junior')" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-blue-600 hover:bg-blue-50">國中基礎</button>
                 <button onclick="loadPreview('senior')" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-purple-600 hover:bg-purple-50">高中核心</button>
             </div>
-
             <div id="preview-container" class="hidden border-t border-slate-50 pt-6">
                 <h4 id="preview-title" class="font-bold text-slate-400 mb-4"></h4>
                 <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-96 overflow-y-auto custom-scrollbar"></div>
@@ -62,30 +58,21 @@
             const container = document.getElementById('preview-container');
             const list = document.getElementById('preview-list');
             const title = document.getElementById('preview-title');
-            
             list.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">讀取中...</div>';
             container.classList.remove('hidden');
 
-            // 隨機精選 1000 字邏輯
             const randomOffset = Math.floor(Math.random() * 50); 
-            const { data, error } = await supabaseClient
-                .from('words')
-                .select('english, chinese')
-                .eq('level', level)
-                .range(randomOffset, randomOffset + 999);
+            const { data, error } = await supabaseClient.from('words').select('english, chinese').eq('level', level).range(randomOffset, randomOffset + 999);
 
             if (error) return list.innerHTML = '讀取失敗';
 
             const names = { 'elementary': '國小必備', 'junior': '國中基礎', 'senior': '高中核心' };
             title.textContent = `📋 ${names[level]}`;
-            
             list.innerHTML = '';
             data.sort(() => 0.5 - Math.random()).forEach(word => {
                 const item = document.createElement('div');
                 item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center";
-                // 中文改為 text-black (純黑色)
-                item.innerHTML = `<span class="block font-bold text-indigo-600">${word.english}</span>
-                                 <span class="text-sm text-black font-medium">${word.chinese}</span>`;
+                item.innerHTML = `<span class="block font-bold text-indigo-600">${word.english}</span><span class="text-sm text-black font-medium">${word.chinese}</span>`;
                 list.appendChild(item);
             });
         }

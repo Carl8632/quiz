@@ -7,14 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f4f8; }
         .hidden { display: none; }
         .option-correct { background-color: #22c55e !important; color: white !important; border-color: #16a34a !important; }
         .option-wrong { background-color: #ef4444 !important; color: white !important; border-color: #dc2626 !important; }
         .toggle-checkbox:checked { right: 0; border-color: #4f46e5; }
         .toggle-checkbox:checked + .toggle-label { background-color: #4f46e5; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
@@ -23,7 +23,8 @@
     <div id="app" class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border border-slate-100">
         
         <div id="level-selection" class="space-y-6">
-            <h1 class="text-3xl font-bold text-center text-indigo-600 mb-4">英文單字挑戰</h1>
+            <button onclick="window.location.href='index.html'" class="text-sm text-indigo-600 hover:underline">← 返回大廳</button>
+            <h1 class="text-3xl font-bold text-center text-indigo-600">單字測驗</h1>
             
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                 <p class="text-sm font-bold text-slate-600 flex items-center">👤 學生登入</p>
@@ -34,25 +35,23 @@
                 <button onclick="loginAndLoad()" id="login-btn" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold shadow-md hover:bg-slate-700 transition">登入並讀取紀錄</button>
             </div>
 
-            <div id="personal-error-container" class="hidden animate-fade-in bg-red-50 p-4 rounded-2xl border border-red-100">
+            <div id="personal-error-container" class="hidden bg-red-50 p-4 rounded-2xl border border-red-100">
                 <h3 class="font-bold text-red-600 mb-2 flex justify-between items-center text-sm">
-                    <span>🔥 歷史錯題複習 (答對會自動移除)</span>
-                    <span id="error-count-tag" class="bg-red-200 px-2 py-0.5 rounded text-red-700 text-xs">0 字</span>
+                    <span>🔥 歷史錯題複習 (答對自動移除)</span>
                 </h3>
-                <div id="error-list-content" class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scrollbar p-1"></div>
+                <div id="error-list-content" class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scrollbar p-1 text-black"></div>
                 <button onclick="startErrorQuiz()" class="w-full mt-3 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 shadow-lg">進入錯題衝刺模式</button>
             </div>
 
             <div id="level-buttons" class="grid grid-cols-1 gap-3 pt-4 border-t border-slate-100">
-                <p class="text-xs text-slate-400 font-bold">選擇級別開始新測驗：</p>
                 <button onclick="selectLevel('elementary')" class="py-4 bg-green-500 text-white rounded-2xl font-bold shadow-lg hover:bg-green-600 transition text-lg">國小單字</button>
                 <button onclick="selectLevel('junior')" class="py-4 bg-blue-500 text-white rounded-2xl font-bold shadow-lg hover:bg-blue-600 transition text-lg">國中單字</button>
-                <button onclick="selectLevel('senior')" class="py-4 bg-purple-500 text-white rounded-2xl font-bold shadow-lg hover:bg-purple-600 transition text-lg">高中單字</button>
+                <button onclick="selectLevel('senior')" class="py-4 bg-purple-500 text-white rounded-2xl font-bold shadow-lg hover:bg-purple-600 transition text-lg">高中核心</button>
             </div>
         </div>
 
         <div id="quiz-selection" class="hidden space-y-6 text-center">
-            <button onclick="backToHome()" class="text-sm text-indigo-600 hover:underline">← 返回首頁</button>
+            <button onclick="showScreen('level-selection')" class="text-sm text-indigo-600 hover:underline">← 返回選擇等級</button>
             <h2 id="welcome-msg" class="text-xl font-bold text-slate-700"></h2>
             <div class="space-y-4">
                 <button onclick="startQuiz('eng-to-chi')" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl hover:bg-indigo-700">英 ➔ 中 測驗</button>
@@ -62,9 +61,9 @@
 
         <div id="quiz-screen" class="hidden">
             <div class="flex justify-between items-center mb-6">
-                <button onclick="confirmExit()" class="text-xs bg-slate-200 px-3 py-1.5 rounded-full text-slate-600 hover:bg-red-100 hover:text-red-600 transition font-bold">✕ 結束測驗</button>
+                <button onclick="confirmExit()" class="text-xs bg-slate-200 px-3 py-1.5 rounded-full text-slate-600 font-bold">✕ 結束測驗</button>
                 <div class="flex items-center space-x-2">
-                    <span class="text-[10px] text-slate-400">自動發音</span>
+                    <span class="text-[10px] text-slate-400 font-bold">自動發音</span>
                     <label class="relative inline-block w-10 h-6">
                         <input type="checkbox" id="auto-voice" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer right-4 border-slate-300"/>
                         <span class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer"></span>
@@ -74,7 +73,7 @@
             <div class="text-center mb-10">
                 <h2 id="question-text" class="text-5xl font-bold text-slate-800 mb-6"></h2>
                 <button onclick="speakWord()" class="px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold border border-indigo-100">🔊 聽聲音</button>
-                <div class="text-slate-400 text-xs mt-6">得分: <span id="score" class="text-indigo-600 font-bold">0</span> | 進度: <span id="current-question-count">0</span><span id="total-count-text">/10</span></div>
+                <div class="text-slate-400 text-xs mt-6 font-bold">得分: <span id="score" class="text-indigo-600">0</span></div>
             </div>
             <div id="options-container" class="grid grid-cols-1 gap-4"></div>
         </div>
@@ -83,9 +82,9 @@
             <div class="py-10">
                 <span class="text-6xl mb-4 block">🎉</span>
                 <h2 class="text-3xl font-bold text-slate-800 mb-2">測驗結束！</h2>
-                <p class="text-slate-500 text-xl">最終得分：<span id="final-score" class="font-bold text-indigo-600">0</span></p>
+                <p class="text-slate-500 text-xl font-bold">得分：<span id="final-score" class="text-indigo-600">0</span></p>
             </div>
-            <button onclick="loginAndLoad()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg hover:bg-indigo-700">回首頁查看最新紀錄</button>
+            <button onclick="loginAndLoad()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg hover:bg-indigo-700">回到測驗首頁</button>
         </div>
     </div>
 
@@ -101,14 +100,15 @@
         let studentId = "";
         let isReviewingErrors = false;
         let isAnswering = false;
+        let currentQuizType = "";
 
         async function loginAndLoad() {
             const classVal = document.getElementById('class-id').value;
             const nameVal = document.getElementById('stu-name').value;
-            if (!classVal || !nameVal) return alert("請輸入班級座號與英文名字！");
+            if (!classVal || !nameVal) return alert("請輸入班級座號與英文名");
 
             studentId = `${classVal}_${nameVal}`;
-            document.getElementById('login-btn').textContent = "讀取紀錄中...";
+            document.getElementById('login-btn').textContent = "讀取中...";
 
             const { data, error } = await myApp.from('user_errors').select('word, chinese').eq('student_id', studentId);
             
@@ -121,10 +121,9 @@
                     unique.forEach(d => {
                         const item = document.createElement('div');
                         item.className = "text-[11px] p-2 bg-white rounded-xl border border-red-100 shadow-sm text-center";
-                        item.innerHTML = `<b class="text-red-600 block mb-1">${d.word}</b>${d.chinese}`;
+                        item.innerHTML = `<b class="text-red-600 block mb-1">${d.word}</b><span class="text-black font-medium">${d.chinese}</span>`;
                         content.appendChild(item);
                     });
-                    document.getElementById('error-count-tag').textContent = `${unique.length} 字`;
                     document.getElementById('personal-error-container').classList.remove('hidden');
                 } else {
                     document.getElementById('personal-error-container').classList.add('hidden');
@@ -135,10 +134,10 @@
         }
 
         async function selectLevel(level) {
-            if (!studentId) return alert("請先點擊『登入並讀取紀錄』！");
+            if (!studentId) return alert("請先登入");
             const { data } = await myApp.from('words').select('*').eq('level', level);
             allWords = data;
-            document.getElementById('welcome-msg').textContent = `準備開始挑戰！`;
+            document.getElementById('welcome-msg').textContent = `準備開始！`;
             showScreen('quiz-selection');
         }
 
@@ -150,7 +149,7 @@
 
         async function startErrorQuiz() {
             const { data } = await myApp.from('user_errors').select('word, chinese').eq('student_id', studentId);
-            if (!data || data.length === 0) return alert("恭喜！你目前沒有錯題。");
+            if (!data || data.length === 0) return alert("目前沒有錯題紀錄！");
 
             const unique = [];
             const seen = new Set();
@@ -170,7 +169,6 @@
             currentQuizType = type;
             currentQuestionIndex = 0; score = 0;
             document.getElementById('score').textContent = score;
-            document.getElementById('total-count-text').textContent = `/${shuffledVocabulary.length}`;
             showScreen('quiz-screen');
             loadNextQuestion();
         }
@@ -179,19 +177,18 @@
             if (currentQuestionIndex >= shuffledVocabulary.length) return showResult();
             isAnswering = false;
             const current = shuffledVocabulary[currentQuestionIndex];
-            document.getElementById('current-question-count').textContent = currentQuestionIndex + 1;
             document.getElementById('question-text').textContent = currentQuizType === 'eng-to-chi' ? current.english : current.chinese;
             
             if (document.getElementById('auto-voice').checked) setTimeout(() => speakWord(), 100);
 
             let distractors = allWords.filter(w => w.english !== current.english).sort(() => 0.5 - Math.random()).slice(0, 3);
-            let options = [...distractors, current].sort(() => 0.5 - Math.random());
+            let options = [...distractors, { english: current.english, chinese: current.chinese }].sort(() => 0.5 - Math.random());
             
             const container = document.getElementById('options-container');
             container.innerHTML = '';
             options.forEach(opt => {
                 const btn = document.createElement('button');
-                btn.className = "w-full py-4 px-6 text-left bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all active:scale-95";
+                btn.className = "w-full py-4 px-6 text-left bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all text-black";
                 btn.textContent = currentQuizType === 'eng-to-chi' ? opt.chinese : opt.english;
                 btn.onclick = () => handleAnswer(opt, btn, current);
                 container.appendChild(btn);
@@ -201,7 +198,7 @@
         async function handleAnswer(selected, btn, correct) {
             if (isAnswering) return;
             isAnswering = true;
-            const isCorrect = selected.english === correct.english;
+            const isCorrect = selected.english === (correct.english || correct.word);
             
             if (isCorrect) {
                 btn.classList.add('option-correct');
@@ -211,26 +208,19 @@
                 }
             } else {
                 btn.classList.add('option-wrong');
-                await myApp.from('user_errors').insert([{ student_id: studentId, word: correct.english, chinese: correct.chinese }]);
+                await myApp.from('user_errors').insert([{ student_id: studentId, word: correct.english || correct.word, chinese: correct.chinese }]);
                 document.querySelectorAll('#options-container button').forEach(b => {
-                    const correctText = currentQuizType === 'eng-to-chi' ? correct.chinese : correct.english;
+                    const correctText = currentQuizType === 'eng-to-chi' ? correct.chinese : (correct.english || correct.word);
                     if (b.textContent === correctText) b.classList.add('option-correct');
                 });
             }
             setTimeout(() => { currentQuestionIndex++; loadNextQuestion(); }, 700);
         }
 
-        function confirmExit() {
-            if (confirm("確定要結束測驗回到首頁複習嗎？")) backToHome();
-        }
-
-        function showResult() {
-            document.getElementById('final-score').textContent = score;
-            showScreen('result-screen');
-        }
-
+        function confirmExit() { if (confirm("結束測驗並回到首頁？")) backToHome(); }
+        function showResult() { document.getElementById('final-score').textContent = score; showScreen('result-screen'); }
         function speakWord() {
-            const word = shuffledVocabulary[currentQuestionIndex]?.english;
+            const word = shuffledVocabulary[currentQuestionIndex]?.english || shuffledVocabulary[currentQuestionIndex]?.word;
             if (word) {
                 const msg = new SpeechSynthesisUtterance(word);
                 msg.lang = 'en-US';
@@ -238,13 +228,11 @@
                 window.speechSynthesis.speak(msg);
             }
         }
-
         function showScreen(id) {
             ['level-selection', 'quiz-selection', 'quiz-screen', 'result-screen'].forEach(s => document.getElementById(s).classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         }
-
-        function backToHome() { loginAndLoad(); }
+        function backToHome() { window.location.href = 'index.html'; }
     </script>
 </body>
 </html>
