@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英文單字王</title>
+    <title>英語好簡單</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -17,44 +17,39 @@
 
     <div class="max-w-4xl mx-auto">
         <header class="text-center mb-6">
-            <h1 class="text-4xl font-black text-indigo-600">英文單字王</h1>
+            <h1 class="text-4xl font-black text-indigo-600">英語好簡單</h1>
         </header>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            <div onclick="window.location.href='quiz.html'" class="bg-white p-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center">
+            <div onclick="window.location.href='quiz.html'" class="bg-white p-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
                 <div class="text-2xl mb-1">🎮</div>
                 <h3 class="font-bold text-slate-800 text-sm">開始測驗</h3>
             </div>
-
-            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50">
+            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
                 <div class="text-2xl mb-1">🕹️</div>
-                <h3 class="font-bold text-slate-400 text-sm">遊戲區</h3>
+                <h3 class="font-bold text-sm">遊戲區</h3>
             </div>
-
-            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50">
+            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
                 <div class="text-2xl mb-1">🖼️</div>
-                <h3 class="font-bold text-slate-400 text-sm">圖解單字</h3>
+                <h3 class="font-bold text-sm">圖解單字</h3>
             </div>
-
-            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50">
+            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
                 <div class="text-2xl mb-1">💬</div>
-                <h3 class="font-bold text-slate-400 text-sm">情境對話</h3>
+                <h3 class="font-bold text-sm">情境對話</h3>
             </div>
         </div>
 
         <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
             <h2 class="text-xl font-bold mb-4 text-slate-700">📚 單字庫</h2>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
-                <button onclick="loadPreview('elementary')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-green-600 text-sm hover:bg-green-50">國小必備</button>
-                <button onclick="loadPreview('junior')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-blue-600 text-sm hover:bg-blue-50">國中基礎</button>
-                <button onclick="loadPreview('senior')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-purple-600 text-sm hover:bg-purple-50">高中核心</button>
+            <div class="grid grid-cols-2 gap-2 mb-6 text-center">
+                <button onclick="loadPreview('elementary')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-green-600 text-sm hover:bg-green-50">國小基礎</button>
+                <button onclick="loadPreview('junior')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-blue-600 text-sm hover:bg-blue-50">國中必備</button>
                 <button onclick="loadPreview('verb')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-orange-600 text-sm hover:bg-orange-50">動詞變化</button>
+                <button onclick="loadPreview('senior')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-purple-600 text-sm hover:bg-purple-50">高中核心</button>
             </div>
-
             <div id="preview-container" class="hidden border-t border-slate-50 pt-4">
-                <h4 id="preview-title" class="font-bold text-slate-400 mb-3 text-sm"></h4>
-                <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-80 overflow-y-auto custom-scrollbar"></div>
+                <h4 id="preview-title" class="font-bold text-slate-400 mb-3 text-sm px-2"></h4>
+                <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-80 overflow-y-auto custom-scrollbar px-1"></div>
             </div>
         </div>
     </div>
@@ -68,33 +63,20 @@
             const container = document.getElementById('preview-container');
             const list = document.getElementById('preview-list');
             const title = document.getElementById('preview-title');
-            
-            list.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">讀取中...</div>';
+            list.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">精選單字讀取中...</div>';
             container.classList.remove('hidden');
 
             const randomOffset = Math.floor(Math.random() * 20); 
-            const { data, error } = await supabaseClient
-                .from('words')
-                .select('english, chinese')
-                .eq('level', level)
-                .range(randomOffset, randomOffset + 999);
-
+            const { data, error } = await supabaseClient.from('words').select('english, chinese').eq('level', level).range(randomOffset, randomOffset + 999);
             if (error) return list.innerHTML = '讀取失敗';
 
-            const names = { 
-                'elementary': '國小必備', 
-                'junior': '國中基礎', 
-                'senior': '高中核心',
-                'verb': '動詞變化' 
-            };
+            const names = { 'elementary': '國小基礎', 'junior': '國中必備', 'senior': '高中核心', 'verb': '動詞變化' };
             title.textContent = `📋 ${names[level]}`;
-            
             list.innerHTML = '';
             data.sort(() => 0.5 - Math.random()).forEach(word => {
                 const item = document.createElement('div');
-                item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center";
-                item.innerHTML = `<span class="block font-bold text-indigo-600">${word.english}</span>
-                                 <span class="text-sm text-black font-medium">${word.chinese}</span>`;
+                item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center shadow-sm";
+                item.innerHTML = `<span class="block font-bold text-indigo-600">${word.english}</span><span class="text-sm text-black font-semibold">${word.chinese}</span>`;
                 list.appendChild(item);
             });
         }
