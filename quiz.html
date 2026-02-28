@@ -44,7 +44,6 @@
         
         <div id="level-selection" class="space-y-6">
             <button onclick="window.location.href='index.html'" class="text-sm text-indigo-600 hover:underline">← 返回大廳</button>
-            <h1 class="text-3xl font-bold text-center text-indigo-600">英語好簡單</h1>
             
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                 <p class="text-sm font-bold text-slate-600 flex items-center">👤 學生登入</p>
@@ -124,7 +123,6 @@
         let isAnswering = false;
         let currentQuizType = "";
 
-        // 取代 alert 的函式
         function myAlert(msg) {
             document.getElementById('alert-message').textContent = msg;
             document.getElementById('custom-alert').style.display = 'flex';
@@ -165,7 +163,9 @@
         }
 
         async function selectLevel(level) {
+            // 強制檢查登入狀態
             if (!studentId) return myAlert("請先完成登入");
+            
             const { data } = await myApp.from('words').select('*').eq('level', level);
             allWords = data;
             document.getElementById('welcome-msg').textContent = `準備好挑戰了嗎？`;
@@ -212,14 +212,13 @@
             
             if (document.getElementById('auto-voice').checked) setTimeout(() => speakWord(), 100);
 
-            let distractors = allWords.filter(w => w.english !== current.english).sort(() => 0.5 - Math.random()).slice(0, 3);
-            let options = [...distractors, { english: current.english, chinese: current.chinese }].sort(() => 0.5 - Math.random());
+            let distractors = allWords.filter(w => w.english !== (current.english || current.word)).sort(() => 0.5 - Math.random()).slice(0, 3);
+            let options = [...distractors, { english: current.english || current.word, chinese: current.chinese }].sort(() => 0.5 - Math.random());
             
             const container = document.getElementById('options-container');
             container.innerHTML = '';
             options.forEach(opt => {
                 const btn = document.createElement('button');
-                // 修改重點：py-5 改為 py-2.5 以縮短高度
                 btn.className = "w-full py-2.5 px-4 text-center bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all text-black hover:bg-slate-100 text-3xl break-words leading-tight shadow-sm active:scale-95";
                 btn.textContent = currentQuizType === 'eng-to-chi' ? opt.chinese : opt.english;
                 btn.onclick = () => handleAnswer(opt, btn, current);
@@ -230,19 +229,20 @@
         async function handleAnswer(selected, btn, correct) {
             if (isAnswering) return;
             isAnswering = true;
-            const isCorrect = selected.english === (correct.english || correct.word);
+            const correctEng = correct.english || correct.word;
+            const isCorrect = selected.english === correctEng;
             
             if (isCorrect) {
                 btn.classList.add('option-correct');
                 score += 10;
                 if (isReviewingErrors) {
-                    await myApp.from('user_errors').delete().eq('student_id', studentId).eq('word', correct.english || correct.word);
+                    await myApp.from('user_errors').delete().eq('student_id', studentId).eq('word', correctEng);
                 }
             } else {
                 btn.classList.add('option-wrong');
-                await myApp.from('user_errors').insert([{ student_id: studentId, word: correct.english || correct.word, chinese: correct.chinese }]);
+                await myApp.from('user_errors').insert([{ student_id: studentId, word: correctEng, chinese: correct.chinese }]);
                 document.querySelectorAll('#options-container button').forEach(b => {
-                    const correctText = currentQuizType === 'eng-to-chi' ? correct.chinese : (correct.english || correct.word);
+                    const correctText = currentQuizType === 'eng-to-chi' ? correct.chinese : correctEng;
                     if (b.textContent === correctText) b.classList.add('option-correct');
                 });
             }
