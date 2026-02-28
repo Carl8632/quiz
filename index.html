@@ -21,27 +21,23 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-2 md:p-8"> <div class="max-w-4xl mx-auto">
+        <header class="text-center mt-2 mb-4"> <h1 class="text-3xl font-black text-indigo-600">英語好簡單</h1> </header>
 
-    <div class="max-w-4xl mx-auto">
-        <header class="text-center mb-6">
-            <h1 class="text-4xl font-black text-indigo-600">英語好簡單</h1>
-        </header>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            <div onclick="window.location.href='quiz.html'" class="bg-white p-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <div onclick="window.location.href='quiz.html'" class="bg-white py-3 px-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
                 <div class="text-2xl mb-1">🎮</div>
                 <h3 class="font-bold text-slate-800 text-lg">開始測驗</h3>
             </div>
-            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
+            <div class="bg-slate-50 py-3 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
                 <div class="text-2xl mb-1">🕹️</div>
                 <h3 class="font-bold text-lg">遊戲區</h3>
             </div>
-            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
+            <div class="bg-slate-50 py-3 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
                 <div class="text-2xl mb-1">🖼️</div>
                 <h3 class="font-bold text-lg">圖解單字</h3>
             </div>
-            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
+            <div class="bg-slate-50 py-3 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
                 <div class="text-2xl mb-1">💬</div>
                 <h3 class="font-bold text-lg">情境對話</h3>
             </div>
@@ -50,17 +46,15 @@
         <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
             <h2 class="text-xl font-bold mb-4 text-slate-700">📚 單字庫</h2>
             
-            <div class="grid grid-cols-2 gap-2 mb-6 text-center">
-                <button onclick="loadPreview('elementary')" class="py-3.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-green-600 text-lg hover:bg-green-50 active:scale-95 transition">國小基礎</button>
-                <button onclick="loadPreview('junior')" class="py-3.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-blue-600 text-lg hover:bg-blue-50 active:scale-95 transition">國中必備</button>
-                <button onclick="window.location.href='verbs.html'" class="py-3.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-orange-600 text-lg hover:bg-orange-50 active:scale-95 transition">動詞變化</button>
-                <button onclick="loadPreview('senior')" class="py-3.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-purple-600 text-lg hover:bg-purple-50 active:scale-95 transition">高中核心</button>
+            <div class="grid grid-cols-2 gap-2 mb-2 text-center"> <button onclick="loadPreview('elementary')" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-green-600 text-lg hover:bg-green-50 active:scale-95 transition">國小基礎</button>
+                <button onclick="loadPreview('junior')" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-blue-600 text-lg hover:bg-blue-50 active:scale-95 transition">國中必備</button>
+                <button onclick="window.location.href='verbs.html'" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-orange-600 text-lg hover:bg-orange-50 active:scale-95 transition">動詞變化</button>
+                <button onclick="loadPreview('senior')" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-purple-600 text-lg hover:bg-purple-50 active:scale-95 transition">高中核心</button>
             </div>
 
             <div id="preview-container" class="hidden border-t border-slate-50 pt-4">
                 <h4 id="preview-title" class="font-bold text-slate-400 mb-3 text-sm px-2"></h4>
-                <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-80 overflow-y-auto custom-scrollbar px-1"></div>
-            </div>
+                <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto custom-scrollbar px-1"></div> </div>
         </div>
     </div>
 
