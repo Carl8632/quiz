@@ -16,9 +16,29 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #4f46e5; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
+        /* 自訂警告視窗樣式：解決網址顯示與禁止彈窗問題 */
+        #custom-alert {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 9999;
+            align-items: center; justify-content: center;
+        }
+        .alert-content {
+            background: white; padding: 2.5rem 2rem; border-radius: 2rem;
+            text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            width: 85%; max-width: 340px;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="custom-alert">
+        <div class="alert-content">
+            <p id="alert-message" class="text-2xl font-bold text-slate-800 mb-8 leading-relaxed"></p>
+            <button onclick="closeMyAlert()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition active:scale-95">確定</button>
+        </div>
+    </div>
 
     <div id="app" class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border border-slate-100">
         
@@ -102,10 +122,19 @@
         let isAnswering = false;
         let currentQuizType = "";
 
+        // 取代 alert 的函式
+        function myAlert(msg) {
+            document.getElementById('alert-message').textContent = msg;
+            document.getElementById('custom-alert').style.display = 'flex';
+        }
+        function closeMyAlert() {
+            document.getElementById('custom-alert').style.display = 'none';
+        }
+
         async function loginAndLoad() {
             const classVal = document.getElementById('class-id').value;
             const nameVal = document.getElementById('stu-name').value;
-            if (!classVal || !nameVal) return alert("請完成登入資料填寫");
+            if (!classVal || !nameVal) return myAlert("請完成登入資料填寫");
 
             studentId = `${classVal}_${nameVal}`;
             document.getElementById('login-btn').textContent = "讀取中...";
@@ -134,7 +163,7 @@
         }
 
         async function selectLevel(level) {
-            if (!studentId) return alert("請先完成登入");
+            if (!studentId) return myAlert("請先完成登入");
             const { data } = await myApp.from('words').select('*').eq('level', level);
             allWords = data;
             document.getElementById('welcome-msg').textContent = `準備好挑戰了嗎？`;
@@ -149,7 +178,7 @@
 
         async function startErrorQuiz() {
             const { data } = await myApp.from('user_errors').select('word, chinese').eq('student_id', studentId);
-            if (!data || data.length === 0) return alert("目前沒有錯題紀錄！");
+            if (!data || data.length === 0) return myAlert("目前沒有錯題紀錄！");
 
             const unique = [];
             const seen = new Set();
@@ -188,7 +217,8 @@
             container.innerHTML = '';
             options.forEach(opt => {
                 const btn = document.createElement('button');
-                btn.className = "w-full py-4 px-6 text-left bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all text-black hover:bg-slate-100";
+                // 修改重點：加大字體 (text-3xl) 並處理換行 (break-words)
+                btn.className = "w-full py-5 px-4 text-center bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all text-black hover:bg-slate-100 text-3xl break-words leading-tight shadow-sm active:scale-95";
                 btn.textContent = currentQuizType === 'eng-to-chi' ? opt.chinese : opt.english;
                 btn.onclick = () => handleAnswer(opt, btn, current);
                 container.appendChild(btn);
