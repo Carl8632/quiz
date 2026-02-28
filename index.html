@@ -41,12 +41,14 @@
 
         <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
             <h2 class="text-xl font-bold mb-4 text-slate-700">📚 單字庫</h2>
+            
             <div class="grid grid-cols-2 gap-2 mb-6 text-center">
-                <button onclick="loadPreview('elementary')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-green-600 text-sm hover:bg-green-50">國小基礎</button>
-                <button onclick="loadPreview('junior')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-blue-600 text-sm hover:bg-blue-50">國中必備</button>
-                <button onclick="loadPreview('verb')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-orange-600 text-sm hover:bg-orange-50">動詞變化</button>
-                <button onclick="loadPreview('senior')" class="py-2 bg-slate-50 rounded-xl border border-slate-100 font-bold text-purple-600 text-sm hover:bg-purple-50">高中核心</button>
+                <button onclick="loadPreview('elementary')" class="py-2.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-green-600 text-sm hover:bg-green-50">國小基礎</button>
+                <button onclick="loadPreview('junior')" class="py-2.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-blue-600 text-sm hover:bg-blue-50">國中必備</button>
+                <button onclick="loadPreview('verb')" class="py-2.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-orange-600 text-sm hover:bg-orange-50">動詞變化</button>
+                <button onclick="loadPreview('senior')" class="py-2.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-purple-600 text-sm hover:bg-purple-50">高中核心</button>
             </div>
+
             <div id="preview-container" class="hidden border-t border-slate-50 pt-4">
                 <h4 id="preview-title" class="font-bold text-slate-400 mb-3 text-sm px-2"></h4>
                 <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-80 overflow-y-auto custom-scrollbar px-1"></div>
@@ -63,20 +65,38 @@
             const container = document.getElementById('preview-container');
             const list = document.getElementById('preview-list');
             const title = document.getElementById('preview-title');
+            
             list.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">精選單字讀取中...</div>';
             container.classList.remove('hidden');
 
-            const randomOffset = Math.floor(Math.random() * 20); 
-            const { data, error } = await supabaseClient.from('words').select('english, chinese').eq('level', level).range(randomOffset, randomOffset + 999);
-            if (error) return list.innerHTML = '讀取失敗';
+            // 稍微縮減隨機範圍，確保小數據集也能抓到內容
+            const randomOffset = Math.floor(Math.random() * 5); 
+            const { data, error } = await supabaseClient
+                .from('words')
+                .select('english, chinese')
+                .eq('level', level)
+                .range(randomOffset, randomOffset + 199); // 每次預覽前 200 字即可
 
-            const names = { 'elementary': '國小基礎', 'junior': '國中必備', 'senior': '高中核心', 'verb': '動詞變化' };
+            if (error) {
+                console.error(error);
+                return list.innerHTML = '讀取失敗，請檢查資料庫連結';
+            }
+
+            const names = { 
+                'elementary': '國小基礎', 
+                'junior': '國中必備', 
+                'senior': '高中核心', 
+                'verb': '動詞變化' 
+            };
             title.textContent = `📋 ${names[level]}`;
+            
             list.innerHTML = '';
+            // 隨機打亂並顯示
             data.sort(() => 0.5 - Math.random()).forEach(word => {
                 const item = document.createElement('div');
-                item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center shadow-sm";
-                item.innerHTML = `<span class="block font-bold text-indigo-600">${word.english}</span><span class="text-sm text-black font-semibold">${word.chinese}</span>`;
+                item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center shadow-sm hover:bg-white transition";
+                item.innerHTML = `<span class="block font-bold text-indigo-600">${word.english}</span>
+                                 <span class="text-sm text-black font-semibold">${word.chinese}</span>`;
                 list.appendChild(item);
             });
         }

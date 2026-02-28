@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英文好簡單</title>
+    <title>英語好簡單</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -24,7 +24,7 @@
         
         <div id="level-selection" class="space-y-6">
             <button onclick="window.location.href='index.html'" class="text-sm text-indigo-600 hover:underline">← 返回大廳</button>
-            <h1 class="text-3xl font-bold text-center text-indigo-600">單字測驗</h1>
+            <h1 class="text-3xl font-bold text-center text-indigo-600">英語好簡單</h1>
             
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                 <p class="text-sm font-bold text-slate-600 flex items-center">👤 學生登入</p>
@@ -105,7 +105,7 @@
         async function loginAndLoad() {
             const classVal = document.getElementById('class-id').value;
             const nameVal = document.getElementById('stu-name').value;
-            if (!classVal || !nameVal) return alert("請輸入班級座號與英文名");
+            if (!classVal || !nameVal) return alert("請完成登入資料填寫");
 
             studentId = `${classVal}_${nameVal}`;
             document.getElementById('login-btn').textContent = "讀取中...";
@@ -129,15 +129,15 @@
                     document.getElementById('personal-error-container').classList.add('hidden');
                 }
             }
-            document.getElementById('login-btn').textContent = "刷新歷史紀錄";
+            document.getElementById('login-btn').textContent = "刷新紀錄成功";
             showScreen('level-selection');
         }
 
         async function selectLevel(level) {
-            if (!studentId) return alert("請先登入");
+            if (!studentId) return alert("請先完成登入");
             const { data } = await myApp.from('words').select('*').eq('level', level);
             allWords = data;
-            document.getElementById('welcome-msg').textContent = `準備開始！`;
+            document.getElementById('welcome-msg').textContent = `準備好挑戰了嗎？`;
             showScreen('quiz-selection');
         }
 
@@ -188,7 +188,7 @@
             container.innerHTML = '';
             options.forEach(opt => {
                 const btn = document.createElement('button');
-                btn.className = "w-full py-4 px-6 text-left bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all text-black";
+                btn.className = "w-full py-4 px-6 text-left bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all text-black hover:bg-slate-100";
                 btn.textContent = currentQuizType === 'eng-to-chi' ? opt.chinese : opt.english;
                 btn.onclick = () => handleAnswer(opt, btn, current);
                 container.appendChild(btn);
@@ -204,7 +204,7 @@
                 btn.classList.add('option-correct');
                 score += 10;
                 if (isReviewingErrors) {
-                    await myApp.from('user_errors').delete().eq('student_id', studentId).eq('word', correct.english);
+                    await myApp.from('user_errors').delete().eq('student_id', studentId).eq('word', correct.english || correct.word);
                 }
             } else {
                 btn.classList.add('option-wrong');
