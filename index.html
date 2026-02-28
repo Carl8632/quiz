@@ -2,15 +2,17 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>英語好簡單</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; -webkit-overflow-scrolling: touch; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #e2e8f0; border-radius: 10px; }
+        /* 強制顯示捲軸並確保滑動流暢 */
+        #preview-list { overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -40,20 +42,18 @@
         </div>
 
         <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
-            <h2 class="text-xl font-bold mb-4 text-slate-700">📚 單字庫預覽</h2>
+            <h2 class="text-xl font-bold mb-4 text-slate-700">📚 單字庫</h2>
             
             <div class="grid grid-cols-2 gap-2 mb-6 text-center">
                 <button onclick="loadPreview('elementary')" class="py-2.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-green-600 text-sm hover:bg-green-50">國小基礎</button>
                 <button onclick="loadPreview('junior')" class="py-2.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-blue-600 text-sm hover:bg-blue-50">國中必備</button>
-                
                 <button onclick="window.location.href='verbs.html'" class="py-2.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-orange-600 text-sm hover:bg-orange-50">動詞變化</button>
-                
                 <button onclick="loadPreview('senior')" class="py-2.5 bg-slate-50 rounded-xl border border-slate-100 font-bold text-purple-600 text-sm hover:bg-purple-50">高中核心</button>
             </div>
 
             <div id="preview-container" class="hidden border-t border-slate-50 pt-4">
                 <h4 id="preview-title" class="font-bold text-slate-400 mb-3 text-sm px-2"></h4>
-                <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-80 overflow-y-auto custom-scrollbar px-1"></div>
+                <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-80 overflow-y-auto custom-scrollbar px-1" style="touch-action: pan-y;"></div>
             </div>
         </div>
     </div>
@@ -68,28 +68,36 @@
             const list = document.getElementById('preview-list');
             const title = document.getElementById('preview-title');
             
-            list.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">精選單字讀取中...</div>';
+            list.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">讀取中...</div>';
             container.classList.remove('hidden');
 
-            const randomOffset = Math.floor(Math.random() * 5); 
             const { data, error } = await supabaseClient
                 .from('words')
                 .select('english, chinese')
                 .eq('level', level)
-                .range(randomOffset, randomOffset + 199);
+                .range(0, 150); // 減少單次讀取量以提升手機流暢度
 
             if (error) return list.innerHTML = '讀取失敗';
 
             const names = { 'elementary': '國小基礎', 'junior': '國中必備', 'senior': '高中核心' };
             title.textContent = `📋 ${names[level]}`;
             
-            list.innerHTML = '';
+            // 使用 DocumentFragment 減少 DOM 重繪次數，解決卡頓
+            const fragment = document.createDocumentFragment();
             data.sort(() => 0.5 - Math.random()).forEach(word => {
                 const item = document.createElement('div');
-                item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center shadow-sm hover:bg-white transition";
+                item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center shadow-sm";
                 item.innerHTML = `<span class="block font-bold text-indigo-600">${word.english}</span>
                                  <span class="text-sm text-black font-semibold">${word.chinese}</span>`;
-                list.appendChild(item);
+                fragment.appendChild(item);
+            });
+
+            // 確保 UI 執行緒有時間喘息，再放入資料
+            requestAnimationFrame(() => {
+                list.innerHTML = '';
+                list.appendChild(fragment);
+                // 強制觸發捲軸計算
+                list.scrollTop = 0;
             });
         }
     </script>
