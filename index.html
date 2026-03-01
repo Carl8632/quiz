@@ -9,33 +9,17 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
-        
-        /* 鎖頭與搖桿圖片比例調整，換回可愛版 */
-        .status-img {
-            width: 32px; /* 縮小一點，更精緻可愛 */
-            height: 32px;
-            object-fit: contain;
-            margin-bottom: 2px;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        .shake { animation: shake 0.2s ease-in-out 0s 2; }
+        .status-img { width: 36px; height: 36px; object-fit: contain; margin-bottom: 4px; }
     </style>
 </head>
 <body class="p-2 md:p-8">
 
     <div class="max-w-4xl mx-auto">
         <div class="flex justify-end mb-4">
-            <button onclick="switchStudent()" class="text-sm font-bold text-slate-400 hover:text-red-500 transition flex items-center gap-1">
-                🔄 切換學生 (重置紀錄)
-            </button>
+            <button onclick="switchStudent()" class="text-sm font-bold text-slate-400 hover:text-red-500 transition">🔄 切換學生 (重置紀錄)</button>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4"> 
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 mt-2"> 
             <div onclick="window.location.href='quiz.html'" class="bg-white py-3 px-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
                 <div class="text-2xl mb-1">🎮</div>
                 <h3 class="font-bold text-slate-800 text-lg">單字測驗</h3>
@@ -52,7 +36,7 @@
             </div>
 
             <div id="game-btn" onclick="checkGameAccess()" class="bg-white py-3 px-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center relative">
-                <img id="game-status-icon" src="https://img.icons8.com/fluency/48/lock.png" alt="Locked" class="status-img">
+                <img id="game-status-icon" src="https://img.icons8.com/fluency/48/lock.png" class="status-img">
                 <h3 id="game-text" class="font-bold text-slate-400 text-lg">遊戲區</h3>
             </div>
         </div>
@@ -67,92 +51,72 @@
             </div>
             <div id="preview-container" class="hidden border-t border-slate-50 pt-4">
                 <h4 id="preview-title" class="font-bold text-slate-400 mb-3 text-sm px-2"></h4>
-                <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto custom-scrollbar px-1"></div>
+                <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto px-1"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // Supabase 設定 (維持不變)
         const SUPABASE_URL = 'https://zeqemounpcjbhbksftoa.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplcWVtb3VucGNqYmhia3NmdG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3NTI2NjIsImV4cCI6MjA4NzMyODY2Mn0.WAWfdmTygPQK3zJAeVO79pHKP7umHnFcouyykvT_x74'; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const LOCK_IMG = "https://img.icons8.com/fluency/48/lock.png";
-        const JOYSTICK_IMG = "https://img.icons8.com/fluency/48/joystick.png";
-
-        // --- 切換學生功能：清空本地數據並重新整理 ---
+        // 重置功能：確保學生可以重新累積題數
         function switchStudent() {
-            if(confirm("確定要切換學生嗎？這將會清除目前的測驗題數紀錄。")) {
+            if(confirm("確定要切換學生嗎？這將重置題數紀錄。")) {
                 localStorage.removeItem('quizTotalCount');
-                localStorage.removeItem('wrongWords');
-                location.reload(); // 重新整理網頁
+                location.reload();
             }
         }
 
+        // 更新首頁遊戲區的「鎖頭」狀態
         function updateGameStatus() {
             const quizCount = parseInt(localStorage.getItem('quizTotalCount') || '0');
-            const wrongWords = JSON.parse(localStorage.getItem('wrongWords') || '[]');
             const iconImg = document.getElementById('game-status-icon');
             const gameText = document.getElementById('game-text');
 
-            if (quizCount >= 20 && wrongWords.length === 0) {
-                iconImg.src = JOYSTICK_IMG;
-                gameText.classList.remove('text-slate-400');
-                gameText.classList.add('text-slate-800');
+            // 判斷門檻修正為 10
+            if (quizCount >= 10) {
+                iconImg.src = "https://img.icons8.com/fluency/48/joystick.png"; // 換成搖桿圖示
+                gameText.className = "font-bold text-slate-800 text-lg";
             } else {
-                iconImg.src = LOCK_IMG;
-                gameText.classList.add('text-slate-400');
-                gameText.classList.remove('text-slate-800');
+                iconImg.src = "https://img.icons8.com/fluency/48/lock.png"; // 保持鎖頭圖示
+                gameText.className = "font-bold text-slate-400 text-lg";
             }
         }
 
+        // 點擊遊戲區時的判斷與提示文字修正
         function checkGameAccess() {
             const quizCount = parseInt(localStorage.getItem('quizTotalCount') || '0');
-            const wrongWords = JSON.parse(localStorage.getItem('wrongWords') || '[]');
-
-            if (quizCount < 20 || wrongWords.length > 0) {
-                const btn = document.getElementById('game-btn');
-                btn.classList.add('shake');
-                setTimeout(() => btn.classList.remove('shake'), 400);
-                
-                let msg = "🔒 遊戲區尚未解鎖：\n";
-                msg += `• 累計題數不足 (${quizCount}/20)\n`;
-                if (wrongWords.length > 0) msg += `• 尚有 ${wrongWords.length} 個錯題未消除\n`;
-                alert(msg);
-            } else {
+            
+            // 邏輯門檻改為 10
+            if (quizCount >= 10) {
                 window.location.href = 'game.html';
+            } else {
+                // 提示文字修正為 10 題
+                alert(`🔒 遊戲區尚未解鎖：\n目前已累積答題：${quizCount}/10\n請先完成一輪測驗喔！`);
             }
         }
 
+        // 頁面載入時執行狀態檢查
         window.onload = updateGameStatus;
-        updateGameStatus();
 
-        // --- 單字庫預覽邏輯 (不變) ---
+        // 單字預覽功能
         async function loadPreview(level) {
             const container = document.getElementById('preview-container');
             const list = document.getElementById('preview-list');
-            const title = document.getElementById('preview-title');
             list.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">讀取中...</div>';
             container.classList.remove('hidden');
-
-            const { data, error } = await supabaseClient.from('words').select('english, chinese').eq('level', level).range(0, 149);
-            if (error) return list.innerHTML = '讀取失敗';
+            const { data } = await supabaseClient.from('words').select('english, chinese').eq('level', level).range(0, 50);
             const names = { 'elementary': '國小基礎', 'junior': '國中必備', 'senior': '高中核心' };
-            title.textContent = `📋 ${names[level]}`;
-            const sortedData = data.sort(() => 0.5 - Math.random());
-            
-            setTimeout(() => {
-                list.innerHTML = ''; 
-                const fragment = document.createDocumentFragment();
-                sortedData.forEach(word => {
-                    const item = document.createElement('div');
-                    item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center shadow-sm";
-                    item.innerHTML = `<span class="block font-bold text-indigo-600">${word.english}</span><span class="text-sm text-black font-semibold">${word.chinese}</span>`;
-                    fragment.appendChild(item);
-                });
-                list.appendChild(fragment);
-            }, 50); 
+            document.getElementById('preview-title').textContent = `📋 ${names[level]}`;
+            list.innerHTML = ''; 
+            data.forEach(word => {
+                const item = document.createElement('div');
+                item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center shadow-sm";
+                item.innerHTML = `<span class="block font-bold text-indigo-600">${word.english}</span><span class="text-sm text-black font-semibold">${word.chinese}</span>`;
+                list.appendChild(item);
+            });
         }
     </script>
 </body>

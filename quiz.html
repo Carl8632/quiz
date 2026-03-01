@@ -141,7 +141,6 @@
             const { data, error } = await myApp.from('user_errors').select('word, chinese').eq('student_id', studentId);
             
             if (!error) {
-                // 【核心修改】同步資料庫錯題到本地 localStorage，讓 index.html 抓得到
                 const formattedErrors = data.map(d => ({ word: d.word, chinese: d.chinese }));
                 localStorage.setItem('wrongWords', JSON.stringify(formattedErrors));
 
@@ -233,7 +232,7 @@
             const correctEng = correct.english || correct.word;
             const isCorrect = selected.english === correctEng;
 
-            // 【核心修改】每答一題，累計總題數到 localStorage
+            // 每答一題，累計總題數到 localStorage
             let totalCount = parseInt(localStorage.getItem('quizTotalCount') || '0');
             localStorage.setItem('quizTotalCount', totalCount + 1);
             
@@ -241,7 +240,6 @@
                 btn.classList.add('option-correct');
                 score += 10;
 
-                // 【核心修改】答對時，從本地緩存移除錯題
                 let localWrong = JSON.parse(localStorage.getItem('wrongWords') || '[]');
                 localWrong = localWrong.filter(item => item.word !== correctEng);
                 localStorage.setItem('wrongWords', JSON.stringify(localWrong));
@@ -253,7 +251,6 @@
                 btn.classList.add('option-wrong');
                 await myApp.from('user_errors').insert([{ student_id: studentId, word: correctEng, chinese: correct.chinese }]);
                 
-                // 【核心修改】答錯時，同步加入本地緩存
                 let localWrong = JSON.parse(localStorage.getItem('wrongWords') || '[]');
                 if(!localWrong.some(i => i.word === correctEng)) {
                     localWrong.push({ word: correctEng, chinese: correct.chinese });
