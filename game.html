@@ -23,14 +23,16 @@
         .game-link { font-weight: 700; color: #4f46e5; text-decoration: none; }
         .game-link:hover { text-decoration: underline; color: #4338ca; }
     </style>
+    
     <script>
         (function() {
-            const quizScore = localStorage.getItem('quizScore');
+            // 取得與首頁一致的累積題數變數
+            const quizCount = parseInt(localStorage.getItem('quizTotalCount') || '0');
             const quizPassed = localStorage.getItem('quizPassed');
             
-            // 如果測驗分數小於 20 且沒有通過標記，則強制跳回首頁
-            if (!quizPassed && (!quizScore || parseInt(quizScore) < 20)) {
-                alert('請先回到首頁完成 20 題測驗，才能解鎖遊戲區喔！');
+            // 邏輯修正：判斷門檻改為 10，並修正彈窗文字
+            if (!quizPassed && quizCount < 10) {
+                alert(`🔒 遊戲區尚未解鎖：\n目前已累積答題：${quizCount}/10\n請先回到首頁完成一輪測驗喔！`);
                 window.location.href = 'index.html';
             }
         })();
@@ -40,7 +42,7 @@
 
     <div class="max-w-6xl mx-auto">
         <header class="flex justify-between items-center mb-8 px-2">
-            <button onclick="window.location.href='index.html'" class="text-indigo-600 font-bold flex items-center">
+            <button onclick="window.location.href='index.html'" class="text-indigo-600 font-bold flex items-center hover:opacity-70 transition">
                 <span class="mr-1">←</span> 返回首頁
             </button>
             <h1 class="text-2xl font-black text-slate-800">🕹️ 遊戲區</h1>

@@ -160,6 +160,7 @@
                     document.getElementById('personal-error-container').classList.add('hidden');
                 }
             }
+            // 回復成你原本期望的文字
             document.getElementById('login-btn').textContent = "刷新紀錄成功";
             showScreen('level-selection');
         }
@@ -193,6 +194,7 @@
 
             isReviewingErrors = true;
             shuffledVocabulary = unique.sort(() => 0.5 - Math.random());
+            // 這裡修正：啟動測驗介面
             initQuizUI('eng-to-chi');
         }
 
@@ -208,7 +210,9 @@
             if (currentQuestionIndex >= shuffledVocabulary.length) return showResult();
             isAnswering = false;
             const current = shuffledVocabulary[currentQuestionIndex];
-            document.getElementById('question-text').textContent = currentQuizType === 'eng-to-chi' ? current.english : current.chinese;
+            // 修正欄位抓取，確保 english 存在
+            const questionVal = currentQuizType === 'eng-to-chi' ? (current.english || current.word) : current.chinese;
+            document.getElementById('question-text').textContent = questionVal;
             
             if (document.getElementById('auto-voice').checked) setTimeout(() => speakWord(), 100);
 
@@ -220,7 +224,7 @@
             options.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = "w-full py-2.5 px-4 text-center bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold transition-all text-black hover:bg-slate-100 text-3xl break-words leading-tight shadow-sm active:scale-95";
-                btn.textContent = currentQuizType === 'eng-to-chi' ? opt.chinese : opt.english;
+                btn.textContent = currentQuizType === 'eng-to-chi' ? opt.chinese : (opt.english || opt.word);
                 btn.onclick = () => handleAnswer(opt, btn, current);
                 container.appendChild(btn);
             });
@@ -230,9 +234,8 @@
             if (isAnswering) return;
             isAnswering = true;
             const correctEng = correct.english || correct.word;
-            const isCorrect = selected.english === correctEng;
+            const isCorrect = (selected.english || selected.word) === correctEng;
 
-            // 每答一題，累計總題數到 localStorage
             let totalCount = parseInt(localStorage.getItem('quizTotalCount') || '0');
             localStorage.setItem('quizTotalCount', totalCount + 1);
             
@@ -244,9 +247,7 @@
                 localWrong = localWrong.filter(item => item.word !== correctEng);
                 localStorage.setItem('wrongWords', JSON.stringify(localWrong));
 
-                if (isReviewingErrors) {
-                    await myApp.from('user_errors').delete().eq('student_id', studentId).eq('word', correctEng);
-                }
+                await myApp.from('user_errors').delete().eq('student_id', studentId).eq('word', correctEng);
             } else {
                 btn.classList.add('option-wrong');
                 await myApp.from('user_errors').insert([{ student_id: studentId, word: correctEng, chinese: correct.chinese }]);
