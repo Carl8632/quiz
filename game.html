@@ -23,6 +23,18 @@
         .game-link { font-weight: 700; color: #4f46e5; text-decoration: none; }
         .game-link:hover { text-decoration: underline; color: #4338ca; }
     </style>
+    <script>
+        (function() {
+            const quizScore = localStorage.getItem('quizScore');
+            const quizPassed = localStorage.getItem('quizPassed');
+            
+            // 如果測驗分數小於 20 且沒有通過標記，則強制跳回首頁
+            if (!quizPassed && (!quizScore || parseInt(quizScore) < 20)) {
+                alert('請先回到首頁完成 20 題測驗，才能解鎖遊戲區喔！');
+                window.location.href = 'index.html';
+            }
+        })();
+    </script>
 </head>
 <body class="p-4 md:p-8">
 
