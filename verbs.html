@@ -2,171 +2,134 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>動詞三態表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>動詞變化 - 英語好簡單</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
-        .table-container { max-width: 900px; margin: 1.5rem auto; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden; }
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #f8fafc; 
+            -webkit-overflow-scrolling: touch; 
+        }
+        .table-card { 
+            background: white; 
+            border-radius: 24px; 
+            border: 1px solid #f1f5f9; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        .scroll-container {
+            overflow-x: auto;
+            max-height: 80vh; /* 限制表格高度，觸發捲動以實現凍結效果 */
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x pan-y;
+        }
         tr:nth-child(even) { background-color: #fdfdfd; }
-        .sticky-header { position: sticky; top: 0; z-index: 10; }
+        
+        /* 標題與內容欄位字體大小一致，並全面加粗 */
+        .header-cell { font-size: 1rem; font-weight: 800; color: #64748b; }
+        .word-cell { font-size: 1rem; font-weight: 700; color: #1e293b; }
+        .chinese-cell { font-size: 1rem; font-weight: 700; color: #4f46e5; }
+
+        /* 凍結首列關鍵 CSS */
+        thead tr {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8fafc; /* 確保捲動時背景不透明 */
+        }
     </style>
 </head>
-<body class="p-4">
+<body class="p-4 md:p-8">
 
-    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center px-2">
-        <button onclick="window.location.href='index.html'" class="px-4 py-2 text-indigo-600 font-bold bg-white rounded-xl shadow-sm border border-slate-100 hover:bg-indigo-50 transition">← 返回首頁</button>
-        <h1 class="text-2xl font-bold text-slate-800">📚 常用動詞三態表</h1>
-    </div>
+    <div class="max-w-4xl mx-auto">
+        <header class="flex justify-between items-center mb-6 px-2">
+            <button onclick="window.location.href='index.html'" class="text-indigo-600 font-bold flex items-center">
+                <span class="mr-1">←</span> 返回首頁
+            </button>
+            <h1 class="text-2xl font-black text-slate-800">📚 動詞變化</h1>
+        </header>
 
-    <div class="table-container">
-        <div class="overflow-x-auto">
-            <table class="w-full text-center border-collapse">
-                <thead class="sticky-header">
-                    <tr class="bg-indigo-600 text-white">
-                        <th class="p-4 font-bold">中文</th>
-                        <th class="p-4 font-bold">原形 (Base)</th>
-                        <th class="p-4 font-bold">過去式 (Past)</th>
-                        <th class="p-4 font-bold">過去分詞 (P.P.)</th>
-                    </tr>
-                </thead>
-                <tbody class="text-slate-700 font-medium">
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">清理/打掃</td><td>clean</td><td>cleaned</td><td>cleaned</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">關閉</td><td>close</td><td>closed</td><td>closed</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">來</td><td>come</td><td>came</td><td>come</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">煮飯</td><td>cook</td><td>cooked</td><td>cooked</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">切</td><td>cut</td><td>cut</td><td>cut</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">跳舞</td><td>dance</td><td>danced</td><td>danced</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">做</td><td>do</td><td>did</td><td>done</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">畫畫</td><td>draw</td><td>drew</td><td>drawn</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">喝</td><td>drink</td><td>drank</td><td>drunk</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">吃</td><td>eat</td><td>ate</td><td>eaten</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">飛</td><td>fly</td><td>flew</td><td>flown</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">得到/獲得</td><td>get</td><td>got</td><td>gotten</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">去</td><td>go</td><td>went</td><td>gone</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">幫助</td><td>help</td><td>helped</td><td>helped</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">慢跑</td><td>jog</td><td>jogged</td><td>jogged</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">喜歡</td><td>like</td><td>liked</td><td>liked</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">聽</td><td>listen</td><td>listened</td><td>listened</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">看</td><td>look</td><td>looked</td><td>looked</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">見面</td><td>meet</td><td>met</td><td>met</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">打開</td><td>open</td><td>opened</td><td>opened</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">閱讀</td><td>read</td><td>read</td><td>read</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">看見</td><td>see</td><td>saw</td><td>seen</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">唱歌</td><td>sing</td><td>sang</td><td>sung</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">睡覺</td><td>sleep</td><td>slept</td><td>slept</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">研讀/學習</td><td>study</td><td>studied</td><td>studied</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">游泳</td><td>swim</td><td>swam</td><td>swum</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">拿/帶</td><td>take</td><td>took</td><td>taken</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">感謝</td><td>thank</td><td>thanked</td><td>thanked</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">疲累</td><td>tire</td><td>tired</td><td>tired</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">使用</td><td>use</td><td>used</td><td>used</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">拜訪</td><td>visit</td><td>visited</td><td>visited</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">等待</td><td>wait</td><td>waited</td><td>waited</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">走路</td><td>walk</td><td>walked</td><td>walked</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">想要</td><td>want</td><td>wanted</td><td>wanted</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">清洗</td><td>wash</td><td>washed</td><td>washed</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">觀看</td><td>watch</td><td>watched</td><td>watched</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">寫</td><td>write</td><td>wrote</td><td>written</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">工作</td><td>work</td><td>worked</td><td>worked</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">擔心</td><td>worry</td><td>worried</td><td>worried</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">衝浪/上網</td><td>surf</td><td>surfed</td><td>surfed</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">尋找/發現</td><td>find</td><td>found</td><td>found</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">有/吃/喝</td><td>have</td><td>had</td><td>had</td>
-                    </tr>
-                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition">
-                        <td class="p-4 text-indigo-600 font-bold">玩/彈奏</td><td>play</td><td>played</td><td>played</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="table-card">
+            <div class="scroll-container">
+                <table class="w-full text-center border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="p-4 header-cell">中文</th>
+                            <th class="p-4 header-cell">原形</th>
+                            <th class="p-4 header-cell">過去式</th>
+                            <th class="p-4 header-cell">過去分詞</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-slate-700">
+                        <script>
+                            // 完整字庫保留，絕對不刪
+                            const verbs = [
+                                ["清理", "clean", "cleaned", "cleaned"],
+                                ["關閉", "close", "closed", "closed"],
+                                ["來", "come", "came", "come"],
+                                ["煮飯", "cook", "cooked", "cooked"],
+                                ["切", "cut", "cut", "cut"],
+                                ["跳舞", "dance", "danced", "danced"],
+                                ["做", "do", "did", "done"],
+                                ["畫畫", "draw", "drew", "drawn"],
+                                ["喝", "drink", "drank", "drunk"],
+                                ["吃", "eat", "ate", "eaten"],
+                                ["飛", "fly", "flew", "flown"],
+                                ["得到", "get", "got", "gotten"],
+                                ["去", "go", "went", "gone"],
+                                ["幫助", "help", "helped", "helped"],
+                                ["慢跑", "jog", "jogged", "jogged"],
+                                ["喜歡", "like", "liked", "liked"],
+                                ["聽", "listen", "listened", "listened"],
+                                ["看", "look", "looked", "looked"],
+                                ["見面", "meet", "met", "met"],
+                                ["打開", "open", "opened", "opened"],
+                                ["閱讀", "read", "read", "read"],
+                                ["看見", "see", "saw", "seen"],
+                                ["唱歌", "sing", "sang", "sung"],
+                                ["睡覺", "sleep", "slept", "slept"],
+                                ["學習", "study", "studied", "studied"],
+                                ["游泳", "swim", "swam", "swum"],
+                                ["拿/帶", "take", "took", "taken"],
+                                ["感謝", "thank", "thanked", "thanked"],
+                                ["疲累", "tire", "tired", "tired"],
+                                ["使用", "use", "used", "used"],
+                                ["拜訪", "visit", "visited", "visited"],
+                                ["等待", "wait", "waited", "waited"],
+                                ["走路", "walk", "walked", "walked"],
+                                ["想要", "want", "wanted", "wanted"],
+                                ["清洗", "wash", "washed", "washed"],
+                                ["觀看", "watch", "watched", "watched"],
+                                ["寫", "write", "wrote", "written"],
+                                ["工作", "work", "worked", "worked"],
+                                ["擔心", "worry", "worried", "worried"],
+                                ["上網", "surf", "surfed", "surfed"],
+                                ["尋找", "find", "found", "found"],
+                                ["有", "have", "had", "had"],
+                                ["彈奏/玩", "play", "played", "played"]
+                            ];
+
+                            const tbody = document.currentScript.parentElement;
+                            verbs.forEach(v => {
+                                const tr = document.createElement('tr');
+                                tr.className = "hover:bg-indigo-50/50 border-b border-slate-50 transition-colors";
+                                tr.innerHTML = `
+                                    <td class="p-4 chinese-cell">${v[0]}</td>
+                                    <td class="p-4 word-cell">${v[1]}</td>
+                                    <td class="p-4 word-cell">${v[2]}</td>
+                                    <td class="p-4 word-cell">${v[3]}</td>
+                                `;
+                                tbody.appendChild(tr);
+                            });
+                        </script>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <p class="text-center text-slate-400 text-sm mt-8 pb-10">💡 提示：過去式與過去分詞大部分是加 ed，但要注意不規則變化喔！</p>
 
 </body>
 </html>
