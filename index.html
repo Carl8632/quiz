@@ -18,39 +18,48 @@
         }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #e2e8f0; border-radius: 10px; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.2s ease-in-out 0s 2; }
     </style>
 </head>
 <body class="p-2 md:p-8">
 
     <div class="max-w-4xl mx-auto">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 mt-2"> <div onclick="window.location.href='quiz.html'" class="bg-white py-3 px-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 mt-2"> 
+            <div onclick="window.location.href='quiz.html'" class="bg-white py-3 px-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
                 <div class="text-2xl mb-1">🎮</div>
-                <h3 class="font-bold text-slate-800 text-lg">開始測驗</h3>
+                <h3 class="font-bold text-slate-800 text-lg">單字測驗</h3>
             </div>
-            <div class="bg-slate-50 py-3 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
-                <div class="text-2xl mb-1">🕹️</div>
-                <h3 class="font-bold text-lg">遊戲區</h3>
-            </div>
+            
             <div class="bg-slate-50 py-3 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
                 <div class="text-2xl mb-1">🖼️</div>
-                <h3 class="font-bold text-lg">圖解單字</h3>
+                <h3 class="font-bold text-lg">圖片牆</h3>
             </div>
+            
             <div class="bg-slate-50 py-3 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
                 <div class="text-2xl mb-1">💬</div>
-                <h3 class="font-bold text-lg">情境對話</h3>
+                <h3 class="font-bold text-lg">看圖回答</h3>
+            </div>
+
+            <div id="game-btn" onclick="checkGameAccess()" class="bg-white py-3 px-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center relative">
+                <div id="game-icon" class="text-2xl mb-1">🕹️</div>
+                <h3 id="game-text" class="font-bold text-slate-800 text-lg">遊戲區</h3>
             </div>
         </div>
 
         <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
             <h2 class="text-xl font-bold mb-4 text-slate-700">📚 單字庫</h2>
-            
             <div class="grid grid-cols-2 gap-2 mb-2 text-center">
                 <button onclick="loadPreview('elementary')" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-green-600 text-lg hover:bg-green-50 active:scale-95 transition">國小基礎</button>
                 <button onclick="loadPreview('junior')" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-blue-600 text-lg hover:bg-blue-50 active:scale-95 transition">國中必備</button>
                 <button onclick="window.location.href='verbs.html'" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-orange-600 text-lg hover:bg-orange-50 active:scale-95 transition">動詞變化</button>
                 <button onclick="loadPreview('senior')" class="py-3 bg-slate-50 rounded-xl border border-slate-100 font-bold text-purple-600 text-lg hover:bg-purple-50 active:scale-95 transition">高中核心</button>
             </div>
-
             <div id="preview-container" class="hidden border-t border-slate-50 pt-4">
                 <h4 id="preview-title" class="font-bold text-slate-400 mb-3 text-sm px-2"></h4>
                 <div id="preview-list" class="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto custom-scrollbar px-1"></div>
@@ -63,11 +72,61 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplcWVtb3VucGNqYmhia3NmdG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3NTI2NjIsImV4cCI6MjA4NzMyODY2Mn0.WAWfdmTygPQK3zJAeVO79pHKP7umHnFcouyykvT_x74'; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // --- 遊戲權限判定系統 ---
+        function getStatus() {
+            const wrongWords = JSON.parse(localStorage.getItem('wrongWords') || '[]');
+            const quizCount = parseInt(localStorage.getItem('quizTotalCount') || '0');
+            const targetCount = 20;
+
+            return {
+                isCountOk: quizCount >= targetCount,
+                isWrongOk: wrongWords.length === 0,
+                currentCount: quizCount,
+                wrongNum: wrongWords.length
+            };
+        }
+
+        function checkGameAccess() {
+            const status = getStatus();
+            
+            if (!status.isCountOk || !status.isWrongOk) {
+                const btn = document.getElementById('game-btn');
+                btn.classList.add('shake');
+                setTimeout(() => btn.classList.remove('shake'), 400);
+
+                let message = "🔒 遊戲區尚未解鎖：\n";
+                if (!status.isCountOk) message += `• 測驗題數不足（目前 ${status.currentCount}/20 題）\n`;
+                if (!status.isWrongOk) message += `• 還有 ${status.wrongNum} 個錯題尚未消除\n`;
+                message += "\n加油！完成挑戰即可解鎖！";
+                
+                alert(message);
+            } else {
+                window.location.href = 'game.html';
+            }
+        }
+
+        // 初始化視覺狀態
+        function updateVisuals() {
+            const status = getStatus();
+            const icon = document.getElementById('game-icon');
+            const text = document.getElementById('game-text');
+
+            if (!status.isCountOk || !status.isWrongOk) {
+                icon.innerText = '🔒';
+                text.classList.add('text-slate-400');
+            } else {
+                icon.innerText = '🕹️';
+                text.classList.remove('text-slate-400');
+            }
+        }
+
+        window.onload = updateVisuals;
+
+        // --- 單字預覽邏輯 ---
         async function loadPreview(level) {
             const container = document.getElementById('preview-container');
             const list = document.getElementById('preview-list');
             const title = document.getElementById('preview-title');
-            
             list.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">讀取中...</div>';
             container.classList.remove('hidden');
 
@@ -78,16 +137,13 @@
                 .range(0, 149);
 
             if (error) return list.innerHTML = '讀取失敗';
-
             const names = { 'elementary': '國小基礎', 'junior': '國中必備', 'senior': '高中核心' };
             title.textContent = `📋 ${names[level]}`;
-            
             const sortedData = data.sort(() => 0.5 - Math.random());
             
             setTimeout(() => {
                 list.innerHTML = ''; 
                 const fragment = document.createDocumentFragment();
-                
                 sortedData.forEach(word => {
                     const item = document.createElement('div');
                     item.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 text-center shadow-sm";
@@ -95,10 +151,7 @@
                                      <span class="text-sm text-black font-semibold">${word.chinese}</span>`;
                     fragment.appendChild(item);
                 });
-
-                requestAnimationFrame(() => {
-                    list.appendChild(fragment);
-                });
+                requestAnimationFrame(() => list.appendChild(fragment));
             }, 50); 
         }
     </script>

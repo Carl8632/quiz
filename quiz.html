@@ -17,7 +17,6 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
 
-        /* 自訂警告視窗樣式：解決網址顯示與禁止彈窗問題 */
         #custom-alert {
             display: none;
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -142,6 +141,10 @@
             const { data, error } = await myApp.from('user_errors').select('word, chinese').eq('student_id', studentId);
             
             if (!error) {
+                // 【核心修改】同步資料庫錯題到本地 localStorage，讓 index.html 抓得到
+                const formattedErrors = data.map(d => ({ word: d.word, chinese: d.chinese }));
+                localStorage.setItem('wrongWords', JSON.stringify(formattedErrors));
+
                 const content = document.getElementById('error-list-content');
                 content.innerHTML = '';
                 const unique = Array.from(new Set(data.map(a => JSON.stringify(a)))).map(a => JSON.parse(a));
@@ -163,9 +166,7 @@
         }
 
         async function selectLevel(level) {
-            // 強制檢查登入狀態
             if (!studentId) return myAlert("請先完成登入");
-            
             const { data } = await myApp.from('words').select('*').eq('level', level);
             allWords = data;
             document.getElementById('welcome-msg').textContent = `準備好挑戰了嗎？`;
@@ -231,16 +232,34 @@
             isAnswering = true;
             const correctEng = correct.english || correct.word;
             const isCorrect = selected.english === correctEng;
+
+            // 【核心修改】每答一題，累計總題數到 localStorage
+            let totalCount = parseInt(localStorage.getItem('quizTotalCount') || '0');
+            localStorage.setItem('quizTotalCount', totalCount + 1);
             
             if (isCorrect) {
                 btn.classList.add('option-correct');
                 score += 10;
+
+                // 【核心修改】答對時，從本地緩存移除錯題
+                let localWrong = JSON.parse(localStorage.getItem('wrongWords') || '[]');
+                localWrong = localWrong.filter(item => item.word !== correctEng);
+                localStorage.setItem('wrongWords', JSON.stringify(localWrong));
+
                 if (isReviewingErrors) {
                     await myApp.from('user_errors').delete().eq('student_id', studentId).eq('word', correctEng);
                 }
             } else {
                 btn.classList.add('option-wrong');
                 await myApp.from('user_errors').insert([{ student_id: studentId, word: correctEng, chinese: correct.chinese }]);
+                
+                // 【核心修改】答錯時，同步加入本地緩存
+                let localWrong = JSON.parse(localStorage.getItem('wrongWords') || '[]');
+                if(!localWrong.some(i => i.word === correctEng)) {
+                    localWrong.push({ word: correctEng, chinese: correct.chinese });
+                    localStorage.setItem('wrongWords', JSON.stringify(localWrong));
+                }
+
                 document.querySelectorAll('#options-container button').forEach(b => {
                     const correctText = currentQuizType === 'eng-to-chi' ? correct.chinese : correctEng;
                     if (b.textContent === correctText) b.classList.add('option-correct');

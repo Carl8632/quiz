@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>遊戲區 - 英語好簡單</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #f8fafc; 
+        }
+        .game-card { 
+            background: white; 
+            border-radius: 24px; 
+            border: 1px solid #f1f5f9; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            overflow: hidden;
+        }
+        tr:nth-child(even) { background-color: #fdfdfd; }
+        .unit-cell { font-weight: 800; color: #64748b; background-color: #f8fafc; width: 35%; }
+        .game-link { font-weight: 700; color: #4f46e5; text-decoration: none; }
+        .game-link:hover { text-decoration: underline; color: #4338ca; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-8 px-2">
+            <button onclick="window.location.href='index.html'" class="text-indigo-600 font-bold flex items-center">
+                <span class="mr-1">←</span> 返回首頁
+            </button>
+            <h1 class="text-2xl font-black text-slate-800">🕹️ 遊戲區</h1>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <div class="flex flex-col">
+                <h2 class="text-xl font-black text-emerald-600 mb-4 px-2">Here We Go 7</h2>
+                <div class="game-card">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-emerald-50/50">
+                                <th class="p-4 text-emerald-700 font-black">單元</th>
+                                <th class="p-4 text-emerald-700 font-black">互動遊戲</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Starter</td><td class="p-4 border-b border-slate-50"></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Unit 1</td><td class="p-4 border-b border-slate-50"></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Unit 2</td><td class="p-4 border-b border-slate-50"></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Review 1</td><td class="p-4 border-b border-slate-50"></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Unit 3</td><td class="p-4 border-b border-slate-50"><a href="https://solo.blooket.com/bricks?id=69a392d732d76d090fd51752" target="_blank" class="game-link">Zorblitz</a></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Unit 4</td><td class="p-4 border-b border-slate-50"><a href="https://solo.blooket.com/bubble?id=69a393102a8c2db38f0912d7" target="_blank" class="game-link">Plushie</a></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Review 2</td><td class="p-4 border-b border-slate-50"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex flex-col">
+                <h2 class="text-xl font-black text-blue-600 mb-4 px-2">Here We Go 8</h2>
+                <div class="game-card">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-blue-50/50">
+                                <th class="p-4 text-blue-700 font-black">單元</th>
+                                <th class="p-4 text-blue-700 font-black">互動遊戲</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Starter</td><td class="p-4 border-b border-slate-50"><a href="https://wordwall.net/tc/resource/82626842/%E8%8B%B1%E6%96%87/phonics-review%E8%BE%A8%E9%9F%B3%E9%81%94%E4%BA%BA" target="_blank" class="game-link">Wordwall</a></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Unit 1</td><td class="p-4 border-b border-slate-50"></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Unit 2</td><td class="p-4 border-b border-slate-50"></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Review 1</td><td class="p-4 border-b border-slate-50"></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Unit 3</td><td class="p-4 border-b border-slate-50"></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Unit 4</td><td class="p-4 border-b border-slate-50"></td></tr>
+                            <tr><td class="p-4 border-b border-slate-50 unit-cell">Review 2</td><td class="p-4 border-b border-slate-50"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
