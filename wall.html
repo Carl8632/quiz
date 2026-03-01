@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖片牆</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f4f8; overflow: hidden; } /* 防止全頁滑動 */
+        .category-btn.active { background-color: #4f46e5; color: white; border-color: #4338ca; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .img-container { position: relative; width: 100%; padding-top: 100%; overflow: hidden; border-radius: 1rem; }
+        .img-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        
+        /* 讓容器高度填滿畫面 */
+        .main-container { height: calc(100vh - 40px); }
+    </style>
+</head>
+<body class="p-4 flex items-center justify-center">
+
+    <div class="w-full max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl flex overflow-hidden border border-slate-100 main-container">
+        
+        <div class="w-40 md:w-48 bg-slate-50 border-r border-slate-200 p-3 flex flex-col flex-shrink-0">
+            <button onclick="window.location.href='index.html'" class="mb-4 text-xs text-indigo-600 font-bold hover:underline">← 返回大廳</button>
+            <h2 class="text-sm font-black text-slate-400 mb-3 px-2 uppercase tracking-widest">主題</h2>
+            
+            <div id="category-list" class="space-y-1 overflow-y-auto custom-scrollbar pr-1 flex-grow">
+                </div>
+        </div>
+
+        <div class="flex-grow flex flex-col h-full">
+            <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-white">
+                <h3 id="current-category-title" class="text-xl font-bold text-slate-800">請選擇主題</h3>
+                <span class="text-slate-400 text-xs font-bold">點擊發音 🔊</span>
+            </div>
+
+            <div id="image-grid-container" class="flex-grow overflow-y-auto custom-scrollbar p-6 bg-slate-50/30">
+                <div id="image-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 content-start">
+                    <div class="col-span-full py-20 text-center text-slate-300">
+                        <p class="text-5xl mb-4">🖼️</p>
+                        <p class="text-sm font-bold">選擇分類開始學習</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zeqemounpcjbhbksftoa.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplcWVtb3VucGNqYmhia3NmdG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3NTI2NjIsImV4cCI6MjA4NzMyODY2Mn0.WAWfdmTygPQK3zJAeVO79pHKP7umHnFcouyykvT_x74';
+        const myApp = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 前三個依要求順序，修正 Animals 拼字
+        const categories = [
+            "Houses", "Animals", "Fruit", "Actions", "Time", "Feelings", "Weather", 
+            "Subjects", "Drinks", "Activities 1", "Places 1", "Activities 2", "Places 2",
+            "Countries", "Jobs", "Transportation", "Body Parts", "Illness",
+            "Clothes", "Items", "Food 1", "Routines", "Food 2", "Festivals"
+        ];
+
+        function initCategories() {
+            const list = document.getElementById('category-list');
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = "category-btn w-full text-left px-3 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-white hover:text-indigo-600 transition-all text-sm mb-1";
+                btn.textContent = cat;
+                btn.onclick = () => loadCategory(cat, btn);
+                list.appendChild(btn);
+            });
+        }
+
+        async function loadCategory(categoryName, btnElement) {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById('current-category-title').textContent = categoryName;
+
+            const { data, error } = await myApp
+                .from('words')
+                .select('*')
+                .eq('category', categoryName)
+                .limit(12);
+
+            const grid = document.getElementById('image-grid');
+            grid.innerHTML = '';
+
+            if (error || !data || data.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400">目前此分類尚無資料</div>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-2xl p-2 hover:shadow-lg transition-all cursor-pointer group active:scale-95";
+                
+                const imgSrc = `images/${categoryName}/${item.english}.png`;
+                
+                card.innerHTML = `
+                    <div class="img-container bg-slate-50 mb-2">
+                        <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/200?text=${item.english}'" alt="${item.english}">
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] text-indigo-500 font-black uppercase tracking-tighter mb-0.5">${item.english}</p>
+                        <p class="text-sm font-bold text-slate-700">${item.chinese}</p>
+                    </div>
+                `;
+                card.onclick = () => speak(item.english);
+                grid.appendChild(card);
+            });
+        }
+
+        function speak(word) {
+            const msg = new SpeechSynthesisUtterance(word);
+            msg.lang = 'en-US';
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(msg);
+        }
+
+        initCategories();
+    </script>
+</body>
+</html>

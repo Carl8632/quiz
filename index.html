@@ -25,14 +25,14 @@
                 <h3 class="font-bold text-slate-800 text-lg">單字測驗</h3>
             </div>
             
-            <div class="bg-slate-50 py-3 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
+            <div onclick="window.location.href='wall.html'" class="bg-white py-3 px-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
                 <div class="text-2xl mb-1">🖼️</div>
-                <h3 class="font-bold text-lg">圖片牆</h3>
+                <h3 class="font-bold text-slate-800 text-lg">圖片牆</h3>
             </div>
             
-            <div class="bg-slate-50 py-3 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center opacity-50 text-center text-slate-400">
+            <div onclick="window.location.href='QA.html'" class="bg-white py-3 px-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center">
                 <div class="text-2xl mb-1">💬</div>
-                <h3 class="font-bold text-lg">看圖回答</h3>
+                <h3 class="font-bold text-slate-800 text-lg">看圖問答</h3>
             </div>
 
             <div id="game-btn" onclick="checkGameAccess()" class="bg-white py-3 px-4 rounded-2xl border border-slate-100 cursor-pointer shadow-sm hover:shadow-md transition flex flex-col items-center text-center relative">
@@ -61,7 +61,6 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplcWVtb3VucGNqYmhia3NmdG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3NTI2NjIsImV4cCI6MjA4NzMyODY2Mn0.WAWfdmTygPQK3zJAeVO79pHKP7umHnFcouyykvT_x74'; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 重置功能：確保學生可以重新累積題數
         function switchStudent() {
             if(confirm("確定要切換學生嗎？這將重置題數紀錄。")) {
                 localStorage.removeItem('quizTotalCount');
@@ -69,39 +68,31 @@
             }
         }
 
-        // 更新首頁遊戲區的「鎖頭」狀態
         function updateGameStatus() {
             const quizCount = parseInt(localStorage.getItem('quizTotalCount') || '0');
             const iconImg = document.getElementById('game-status-icon');
             const gameText = document.getElementById('game-text');
 
-            // 判斷門檻修正為 10
             if (quizCount >= 10) {
-                iconImg.src = "https://img.icons8.com/fluency/48/joystick.png"; // 換成搖桿圖示
+                iconImg.src = "https://img.icons8.com/fluency/48/joystick.png"; 
                 gameText.className = "font-bold text-slate-800 text-lg";
             } else {
-                iconImg.src = "https://img.icons8.com/fluency/48/lock.png"; // 保持鎖頭圖示
+                iconImg.src = "https://img.icons8.com/fluency/48/lock.png"; 
                 gameText.className = "font-bold text-slate-400 text-lg";
             }
         }
 
-        // 點擊遊戲區時的判斷與提示文字修正
         function checkGameAccess() {
             const quizCount = parseInt(localStorage.getItem('quizTotalCount') || '0');
-            
-            // 邏輯門檻改為 10
             if (quizCount >= 10) {
                 window.location.href = 'game.html';
             } else {
-                // 提示文字修正為 10 題
                 alert(`🔒 遊戲區尚未解鎖：\n目前已累積答題：${quizCount}/10\n請先完成一輪測驗喔！`);
             }
         }
 
-        // 頁面載入時執行狀態檢查
         window.onload = updateGameStatus;
 
-        // 單字預覽功能
         async function loadPreview(level) {
             const container = document.getElementById('preview-container');
             const list = document.getElementById('preview-list');
